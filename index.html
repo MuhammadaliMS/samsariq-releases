@@ -521,18 +521,36 @@
     .stat-sep { width: 4px; height: 4px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
 
     /* ===== FEATURES BENTO GRID ===== */
-    .features-section { position: relative; z-index: 2; padding: 140px 0; }
+    /* ===== STACKABLE SECTION CARDS ===== */
+    .features-section,
+    .privacy-section,
+    .mcp-section,
+    .platforms-section {
+      position: relative;
+      z-index: 2;
+      padding: 140px 0;
+      border-radius: 40px 40px 0 0;
+      margin-top: -40px;
+      box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
+      transform-origin: top center;
+      overflow: hidden;
+    }
+    .features-section { background: #0a0a0f; }
+    .privacy-section { background: #0d1117; }
+    .mcp-section { background: #12121a; }
+    .platforms-section { background: #0a0a0f; }
     .bento-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: auto auto;
-      gap: 16px;
+      display: flex;
+      gap: 20px;
+      width: max-content;
+      padding-right: 48px;
     }
     .bento-card {
       background: var(--dark-card); border: 1px solid var(--border);
       border-radius: 20px; padding: 36px; position: relative; overflow: hidden;
       transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
       opacity: 0; transform: translateY(60px);
+      width: 380px; flex-shrink: 0;
     }
     .bento-card::before {
       content: ''; position: absolute; inset: 0;
@@ -549,8 +567,8 @@
       box-shadow: 0 30px 80px rgba(0,0,0,0.3);
     }
     .bento-card:hover::after { opacity: 1; }
-    .bento-card.wide { grid-column: span 2; }
-    .bento-card.tall { grid-row: span 2; }
+    .bento-card.wide { width: 480px; }
+    .bento-card.tall { width: 420px; }
 
     .bento-icon {
       width: 48px; height: 48px; border-radius: 14px;
@@ -608,7 +626,6 @@
     .int-chip:hover { border-color: var(--teal); color: var(--text); }
 
     /* ===== PRIVACY ===== */
-    .privacy-section { position: relative; z-index: 2; padding: 140px 0; }
     .privacy-big-text {
       font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 800;
       letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 48px;
@@ -631,7 +648,6 @@
     .privacy-card p { font-size: 0.82rem; color: var(--text-muted); }
 
     /* ===== MCP ===== */
-    .mcp-section { position: relative; z-index: 2; padding: 140px 0; }
     .mcp-layout {
       display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
     }
@@ -678,7 +694,6 @@
     .mcp-feat span { font-size: 0.92rem; font-weight: 500; }
 
     /* ===== PLATFORMS ===== */
-    .platforms-section { position: relative; z-index: 2; padding: 140px 0; }
     .platforms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .platform-card {
       background: var(--dark-card); border: 1px solid var(--border);
@@ -1625,25 +1640,48 @@
       });
     });
 
-    // ===== BENTO CARDS STAGGER =====
+    // ===== BOUNCY BENTO CARDS (HORIZONTAL SCROLL) =====
+    const bentoGrid = document.querySelector('.bento-grid');
+    const bentoContainer = document.querySelector('.features-section .container');
+
+    function getBentoScrollAmount() {
+      return -(bentoGrid.scrollWidth - window.innerWidth + 48);
+    }
+
+    // Animate cards in with elastic bounce
     ScrollTrigger.create({
       trigger: '.bento-grid', start: 'top 80%', once: true,
       onEnter: () => {
-        gsap.fromTo('.bento-card', { opacity: 0, y: 60, scale: 0.95 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.9, stagger: { amount: 0.5, from: 'start' }, ease: 'power3.out' });
+        gsap.fromTo('.bento-card',
+          { opacity: 0, y: 100, scale: 0.8 },
+          { opacity: 1, y: 0, scale: 1, duration: 1.2, stagger: 0.15, ease: 'elastic.out(1, 0.6)' }
+        );
       }
     });
 
-    // Bento card 3D tilt
+    // Horizontal scroll for bento grid
+    const bentoTween = gsap.to(bentoGrid, {
+      x: getBentoScrollAmount,
+      ease: 'none'
+    });
+
+    ScrollTrigger.create({
+      trigger: '.features-section',
+      start: 'center center',
+      end: () => '+=' + (getBentoScrollAmount() * -1),
+      pin: true,
+      animation: bentoTween,
+      scrub: 1,
+      invalidateOnRefresh: true
+    });
+
+    // Bouncy hover (flat, no 3D tilt)
     document.querySelectorAll('.bento-card').forEach(card => {
-      card.addEventListener('mousemove', (e) => {
-        const r = card.getBoundingClientRect();
-        const x = ((e.clientX - r.left) / r.width - 0.5) * 6;
-        const y = ((e.clientY - r.top) / r.height - 0.5) * -6;
-        gsap.to(card, { rotateY: x, rotateX: y, transformPerspective: 800, duration: 0.4, ease: 'power2.out' });
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, { scale: 1.04, y: -10, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
       });
       card.addEventListener('mouseleave', () => {
-        gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+        gsap.to(card, { scale: 1, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.4)' });
       });
     });
 
@@ -1655,8 +1693,8 @@
     ScrollTrigger.create({
       trigger: '.privacy-grid', start: 'top 80%', once: true,
       onEnter: () => {
-        gsap.fromTo('.privacy-card', { opacity: 0, y: 40, scale: 0.9 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.1, ease: 'back.out(1.3)' });
+        gsap.fromTo('.privacy-card', { opacity: 0, y: 80, scale: 0.8 },
+          { opacity: 1, y: 0, scale: 1, duration: 1.2, stagger: 0.12, ease: 'elastic.out(1, 0.6)' });
       }
     });
 
@@ -1680,11 +1718,29 @@
     ScrollTrigger.create({
       trigger: '.platforms-grid', start: 'top 80%', once: true,
       onEnter: () => {
-        gsap.fromTo('.platform-card', { opacity: 0, y: 50, scale: 0.9 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.15, ease: 'back.out(1.3)' });
+        gsap.fromTo('.platform-card', { opacity: 0, y: 80, scale: 0.8 },
+          { opacity: 1, y: 0, scale: 1, duration: 1.2, stagger: 0.15, ease: 'elastic.out(1, 0.6)' });
         gsap.fromTo('.platform-emoji', { scale: 0, rotation: -20 },
           { scale: 1, rotation: 0, duration: 0.6, stagger: 0.15, ease: 'elastic.out(1, 0.4)', delay: 0.3 });
       }
+    });
+
+    // ===== STACKING SECTION EFFECT =====
+    const stackSections = gsap.utils.toArray('.features-section, .privacy-section, .mcp-section, .platforms-section');
+    stackSections.forEach((sec, i) => {
+      if (i === stackSections.length - 1) return; // Don't pin the last section
+      ScrollTrigger.create({
+        trigger: sec,
+        start: 'top top',
+        pin: true,
+        pinSpacing: false,
+        animation: gsap.to(sec, {
+          scale: 0.92,
+          opacity: 0.5,
+          ease: 'none'
+        }),
+        scrub: true,
+      });
     });
 
     // ===== CTA =====
