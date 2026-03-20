@@ -81,9 +81,18 @@
     .cursor-ring.expand { width: 80px; height: 80px; border-color: var(--teal); }
     @media (hover: none) { .cursor { display: none; } }
 
-    /* ===== GRADIENT MESH CANVAS ===== */
-    #gradientCanvas {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5;
+    /* ===== THREE.JS HERO CANVAS ===== */
+    #heroWebGL {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    }
+    #heroWebGL canvas {
+      width: 100% !important; height: 100% !important;
+    }
+
+
+    /* ===== SHOWCASE PARTICLES CANVAS ===== */
+    #showcaseParticles {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
     }
 
     /* ===== NOISE OVERLAY ===== */
@@ -785,8 +794,9 @@
   <div class="cursor" id="cursorDot"><div class="cursor-dot"></div></div>
   <div class="cursor" id="cursorRing"><div class="cursor-ring"></div></div>
 
-  <!-- Gradient Canvas Background -->
-  <canvas id="gradientCanvas"></canvas>
+  <!-- Three.js Hero WebGL Background -->
+  <div id="heroWebGL"></div>
+
 
   <!-- Noise Overlay -->
   <div class="noise-overlay"></div>
@@ -817,13 +827,6 @@
 
   <!-- ============ HERO ============ -->
   <section class="hero" id="hero">
-    <div class="hero-bg-video">
-      <video autoplay muted loop playsinline>
-        <source src="gradient-bg.webm" type="video/webm">
-        <source src="gradient-bg.mp4" type="video/mp4">
-      </video>
-    </div>
-
     <div class="hero-badge"><span class="dot"></span> Now available for macOS</div>
 
     <h1>
@@ -990,6 +993,7 @@
   <!-- ============ PINNED SHOWCASE (Apple-style) ============ -->
   <section class="pinned-showcase" id="showcase">
     <div class="pinned-content" id="pinnedContent">
+      <canvas id="showcaseParticles"></canvas>
 
       <!-- Slide 1: Before -->
       <div class="showcase-slide" id="slide1">
@@ -1230,6 +1234,8 @@
   </footer>
 
   <!-- ===== SCRIPTS ===== -->
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- Lenis Smooth Scroll -->
   <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
   <!-- GSAP -->
@@ -1245,46 +1251,309 @@
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
 
-    // ===== ANIMATED GRADIENT MESH CANVAS =====
-    const canvas = document.getElementById('gradientCanvas');
-    const ctx = canvas.getContext('2d');
+    // ===== THREE.JS HERO AUDIO VISUALIZER =====
     let mouseX = 0.5, mouseY = 0.5;
-    const blobs = [
-      { x: 0.2, y: 0.3, r: 300, color: '9,132,227', speed: 0.0008, phase: 0 },
-      { x: 0.7, y: 0.2, r: 250, color: '0,206,201', speed: 0.001, phase: 2 },
-      { x: 0.5, y: 0.7, r: 280, color: '0,184,148', speed: 0.0007, phase: 4 },
-      { x: 0.3, y: 0.8, r: 220, color: '253,121,168', speed: 0.0012, phase: 1 },
-      { x: 0.8, y: 0.6, r: 260, color: '225,112,85', speed: 0.0009, phase: 3 },
-    ];
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    let canvasFrame = 0;
-    function drawGradient() {
-      canvasFrame++;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      blobs.forEach(b => {
-        const cx = (b.x + Math.sin(canvasFrame * b.speed + b.phase) * 0.15 + (mouseX - 0.5) * 0.05) * canvas.width;
-        const cy = (b.y + Math.cos(canvasFrame * b.speed * 0.7 + b.phase) * 0.12 + (mouseY - 0.5) * 0.05) * canvas.height;
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, b.r * (canvas.width / 1920));
-        grad.addColorStop(0, `rgba(${b.color},0.25)`);
-        grad.addColorStop(1, `rgba(${b.color},0)`);
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      });
-      requestAnimationFrame(drawGradient);
-    }
-    drawGradient();
-
     document.addEventListener('mousemove', (e) => {
       mouseX = e.clientX / window.innerWidth;
       mouseY = e.clientY / window.innerHeight;
     });
+
+    (function initHeroWebGL() {
+      const container = document.getElementById('heroWebGL');
+      let renderer;
+      try {
+        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      } catch(e) { console.warn('WebGL not available for hero'); return; }
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.z = 30;
+
+      // --- Waveform ring particles ---
+      const RING_COUNT = 3;
+      const PTS_PER_RING = 180;
+      const rings = [];
+      const ringColors = [
+        new THREE.Color(0x0984E3), // blue
+        new THREE.Color(0x00CEC9), // teal
+        new THREE.Color(0x00B894), // green
+      ];
+
+      for (let r = 0; r < RING_COUNT; r++) {
+        const geom = new THREE.BufferGeometry();
+        const positions = new Float32Array(PTS_PER_RING * 3);
+        const basePositions = new Float32Array(PTS_PER_RING * 3);
+        const sizes = new Float32Array(PTS_PER_RING);
+        const radius = 8 + r * 4;
+
+        for (let i = 0; i < PTS_PER_RING; i++) {
+          const angle = (i / PTS_PER_RING) * Math.PI * 2;
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * radius;
+          positions[i * 3] = x;
+          positions[i * 3 + 1] = y;
+          positions[i * 3 + 2] = 0;
+          basePositions[i * 3] = x;
+          basePositions[i * 3 + 1] = y;
+          basePositions[i * 3 + 2] = 0;
+          sizes[i] = 1.5 + Math.random() * 1.5;
+        }
+
+        geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geom.setAttribute('basePosition', new THREE.BufferAttribute(basePositions, 3));
+        geom.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        const mat = new THREE.PointsMaterial({
+          color: ringColors[r],
+          size: 1.5,
+          transparent: true,
+          opacity: 0.25 - r * 0.05,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          sizeAttenuation: true,
+        });
+
+        const points = new THREE.Points(geom, mat);
+        scene.add(points);
+        rings.push({ points, geom, radius, speed: 0.15 + r * 0.08, waveAmp: 1.5 + r * 0.8, phase: r * 2.1 });
+      }
+
+      // --- Floating ambient particles ---
+      const AMBIENT_COUNT = 400;
+      const ambientGeom = new THREE.BufferGeometry();
+      const ambientPos = new Float32Array(AMBIENT_COUNT * 3);
+      const ambientVel = [];
+      const ambientColors = new Float32Array(AMBIENT_COUNT * 3);
+      const palette = [
+        new THREE.Color(0x0984E3),
+        new THREE.Color(0x00CEC9),
+        new THREE.Color(0x00B894),
+        new THREE.Color(0xFD79A8),
+        new THREE.Color(0xE17055),
+      ];
+
+      for (let i = 0; i < AMBIENT_COUNT; i++) {
+        ambientPos[i * 3] = (Math.random() - 0.5) * 60;
+        ambientPos[i * 3 + 1] = (Math.random() - 0.5) * 40;
+        ambientPos[i * 3 + 2] = (Math.random() - 0.5) * 30 - 5;
+        ambientVel.push({
+          x: (Math.random() - 0.5) * 0.01,
+          y: (Math.random() - 0.5) * 0.01,
+          z: (Math.random() - 0.5) * 0.005,
+        });
+        const c = palette[Math.floor(Math.random() * palette.length)];
+        ambientColors[i * 3] = c.r;
+        ambientColors[i * 3 + 1] = c.g;
+        ambientColors[i * 3 + 2] = c.b;
+      }
+
+      ambientGeom.setAttribute('position', new THREE.BufferAttribute(ambientPos, 3));
+      ambientGeom.setAttribute('color', new THREE.BufferAttribute(ambientColors, 3));
+
+      const ambientMat = new THREE.PointsMaterial({
+        size: 1.0,
+        transparent: true,
+        opacity: 0.18,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        vertexColors: true,
+        sizeAttenuation: true,
+      });
+      const ambientPts = new THREE.Points(ambientGeom, ambientMat);
+      scene.add(ambientPts);
+
+      // --- Connecting lines between nearby ambient particles ---
+      const lineGeom = new THREE.BufferGeometry();
+      const MAX_LINES = 200;
+      const linePositions = new Float32Array(MAX_LINES * 6);
+      const lineColors = new Float32Array(MAX_LINES * 6);
+      lineGeom.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+      lineGeom.setAttribute('color', new THREE.BufferAttribute(lineColors, 3));
+      const lineMat = new THREE.LineBasicMaterial({
+        transparent: true, opacity: 0.04, vertexColors: true,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+      });
+      const lines = new THREE.LineSegments(lineGeom, lineMat);
+      scene.add(lines);
+
+      let time = 0;
+
+      function animateHeroWebGL() {
+        requestAnimationFrame(animateHeroWebGL);
+        time += 0.016;
+
+        // Mouse influence on camera
+        camera.position.x += ((mouseX - 0.5) * 6 - camera.position.x) * 0.03;
+        camera.position.y += ((mouseY - 0.5) * -4 - camera.position.y) * 0.03;
+        camera.lookAt(0, 0, 0);
+
+        // Animate waveform rings
+        rings.forEach(ring => {
+          const pos = ring.geom.attributes.position.array;
+          const base = ring.geom.attributes.basePosition.array;
+          for (let i = 0; i < PTS_PER_RING; i++) {
+            const angle = (i / PTS_PER_RING) * Math.PI * 2;
+            // Audio-like wave distortion
+            const wave = Math.sin(angle * 8 + time * ring.speed * 10 + ring.phase) *
+                         Math.sin(angle * 3 + time * ring.speed * 6) *
+                         ring.waveAmp;
+            const mouseInfluence = Math.sin(angle + (mouseX - 0.5) * 4) * (mouseY - 0.5) * 2;
+            const dist = ring.radius + wave + mouseInfluence;
+            pos[i * 3] = Math.cos(angle) * dist;
+            pos[i * 3 + 1] = Math.sin(angle) * dist;
+            pos[i * 3 + 2] = Math.sin(angle * 5 + time * 2) * 0.5;
+          }
+          ring.geom.attributes.position.needsUpdate = true;
+          ring.points.rotation.z += ring.speed * 0.003;
+        });
+
+        // Animate ambient particles
+        const aPos = ambientGeom.attributes.position.array;
+        for (let i = 0; i < AMBIENT_COUNT; i++) {
+          aPos[i * 3] += ambientVel[i].x + Math.sin(time + i) * 0.003;
+          aPos[i * 3 + 1] += ambientVel[i].y + Math.cos(time + i * 0.7) * 0.003;
+          aPos[i * 3 + 2] += ambientVel[i].z;
+          // Wrap around
+          if (aPos[i * 3] > 30) aPos[i * 3] = -30;
+          if (aPos[i * 3] < -30) aPos[i * 3] = 30;
+          if (aPos[i * 3 + 1] > 20) aPos[i * 3 + 1] = -20;
+          if (aPos[i * 3 + 1] < -20) aPos[i * 3 + 1] = 20;
+        }
+        ambientGeom.attributes.position.needsUpdate = true;
+
+        // Update connecting lines
+        let lineIdx = 0;
+        const lp = lineGeom.attributes.position.array;
+        const lc = lineGeom.attributes.color.array;
+        for (let i = 0; i < AMBIENT_COUNT && lineIdx < MAX_LINES; i++) {
+          for (let j = i + 1; j < AMBIENT_COUNT && lineIdx < MAX_LINES; j++) {
+            const dx = aPos[i * 3] - aPos[j * 3];
+            const dy = aPos[i * 3 + 1] - aPos[j * 3 + 1];
+            const dz = aPos[i * 3 + 2] - aPos[j * 3 + 2];
+            const d = dx * dx + dy * dy + dz * dz;
+            if (d < 25) {
+              lp[lineIdx * 6] = aPos[i * 3]; lp[lineIdx * 6 + 1] = aPos[i * 3 + 1]; lp[lineIdx * 6 + 2] = aPos[i * 3 + 2];
+              lp[lineIdx * 6 + 3] = aPos[j * 3]; lp[lineIdx * 6 + 4] = aPos[j * 3 + 1]; lp[lineIdx * 6 + 5] = aPos[j * 3 + 2];
+              const ac = ambientColors;
+              lc[lineIdx * 6] = ac[i * 3]; lc[lineIdx * 6 + 1] = ac[i * 3 + 1]; lc[lineIdx * 6 + 2] = ac[i * 3 + 2];
+              lc[lineIdx * 6 + 3] = ac[j * 3]; lc[lineIdx * 6 + 4] = ac[j * 3 + 1]; lc[lineIdx * 6 + 5] = ac[j * 3 + 2];
+              lineIdx++;
+            }
+          }
+        }
+        // Zero out unused lines
+        for (let i = lineIdx; i < MAX_LINES; i++) {
+          lp[i * 6] = lp[i * 6 + 1] = lp[i * 6 + 2] = lp[i * 6 + 3] = lp[i * 6 + 4] = lp[i * 6 + 5] = 0;
+        }
+        lineGeom.attributes.position.needsUpdate = true;
+        lineGeom.attributes.color.needsUpdate = true;
+
+        renderer.render(scene, camera);
+      }
+      animateHeroWebGL();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    })();
+
+    // ===== SHOWCASE CHAOS-TO-ORDER PARTICLES (2D Canvas) =====
+    (function initShowcaseParticles() {
+      const cvs = document.getElementById('showcaseParticles');
+      if (!cvs) return;
+      const parent = cvs.parentElement;
+      const ctx2d = cvs.getContext('2d');
+
+      const PARTICLE_COUNT = 250;
+      const chaosColors = ['#E17055','#D63031','#FDCB6E','#FD79A8'];
+      const orderColors = ['#00B894','#00CEC9','#0984E3','#74B9FF'];
+      const particles = [];
+
+      function resizeShowcase() {
+        cvs.width = parent.offsetWidth;
+        cvs.height = parent.offsetHeight;
+      }
+      resizeShowcase();
+      window.addEventListener('resize', resizeShowcase);
+
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          // Chaos position (normalized 0-1)
+          cx: Math.random(), cy: Math.random(),
+          // Order position (neat rows)
+          ox: 0.15 + (i % 20) * 0.035,
+          oy: 0.2 + Math.floor(i / 20) * 0.05,
+          // Current
+          x: 0, y: 0,
+          size: 2 + Math.random() * 3,
+          chaosColor: chaosColors[i % chaosColors.length],
+          orderColor: orderColors[i % orderColors.length],
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.5 + Math.random() * 1.5,
+        });
+      }
+
+      window._showcaseProgress = 0;
+      let sTime = 0;
+
+      function drawShowcaseParticles() {
+        requestAnimationFrame(drawShowcaseParticles);
+        sTime += 0.016;
+        const w = cvs.width, h = cvs.height;
+        if (!w || !h) return;
+        ctx2d.clearRect(0, 0, w, h);
+
+        const progress = window._showcaseProgress || 0;
+
+        // Draw sweep line
+        if (progress > 0.05 && progress < 0.95) {
+          const sweepX = progress * w;
+          ctx2d.save();
+          ctx2d.strokeStyle = 'rgba(0,206,201,0.4)';
+          ctx2d.lineWidth = 2;
+          ctx2d.shadowColor = '#00CEC9';
+          ctx2d.shadowBlur = 20;
+          ctx2d.beginPath();
+          ctx2d.moveTo(sweepX, 0);
+          ctx2d.lineTo(sweepX, h);
+          ctx2d.stroke();
+          ctx2d.restore();
+        }
+
+        particles.forEach((p, i) => {
+          // Per-particle transition based on sweep position
+          const particleT = Math.max(0, Math.min(1, (progress - p.cx * 0.8) / 0.25));
+          const t = particleT * particleT * (3 - 2 * particleT); // smoothstep
+
+          const wobble = (1 - t) * 15;
+          const targetX = p.cx * w * (1 - t) + p.ox * w * t + Math.sin(sTime * p.speed + p.phase) * wobble;
+          const targetY = p.cy * h * (1 - t) + p.oy * h * t + Math.cos(sTime * p.speed * 0.7 + p.phase) * wobble;
+
+          p.x += (targetX - p.x) * 0.08;
+          p.y += (targetY - p.y) * 0.08;
+
+          // Color interpolation
+          const cc = p.chaosColor;
+          const oc = p.orderColor;
+
+          ctx2d.save();
+          ctx2d.globalAlpha = 0.5 + t * 0.3;
+          ctx2d.fillStyle = t < 0.5 ? cc : oc;
+          ctx2d.shadowColor = t < 0.5 ? cc : oc;
+          ctx2d.shadowBlur = 4 + t * 6;
+          ctx2d.beginPath();
+          ctx2d.arc(p.x, p.y, p.size * (1 - t * 0.3), 0, Math.PI * 2);
+          ctx2d.fill();
+          ctx2d.restore();
+        });
+      }
+      drawShowcaseParticles();
+    })();
 
     // ===== CUSTOM CURSOR =====
     const dot = document.getElementById('cursorDot');
@@ -1406,6 +1675,9 @@
         gsap.set('#slide1', { opacity: s1, scale: 0.95 + s1 * 0.05, y: (1 - s1) * -40 });
         gsap.set('#slide2', { opacity: s2, scale: 0.95 + s2 * 0.05, y: (1 - s2) * 40 });
         gsap.set('#slide3', { opacity: s3, scale: 0.95 + s3 * 0.05, y: (1 - s3) * 40 });
+
+        // Drive chaos-to-order particle transition
+        window._showcaseProgress = p;
       }
     });
 
