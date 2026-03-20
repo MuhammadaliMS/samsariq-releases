@@ -241,21 +241,171 @@
       50% { top: 22px; opacity: 0.3; }
     }
 
-    /* ===== HERO VIDEO SECTION ===== */
-    .hero-video-showcase {
+    /* ===== HERO LIVE DEMO SECTION ===== */
+    .hero-live-demo {
       position: relative; z-index: 2; padding: 0 24px 120px;
       opacity: 0; transform: translateY(60px);
     }
-    .video-container {
-      max-width: 960px; margin: 0 auto; border-radius: 20px; overflow: hidden;
-      border: 1px solid var(--border); position: relative;
-      box-shadow: 0 40px 100px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.02);
+    .demo-wrapper {
+      max-width: 960px; margin: 0 auto; position: relative;
     }
-    .video-container video { width: 100%; display: block; }
-    .video-glow {
-      position: absolute; inset: -100px; z-index: -1; pointer-events: none;
-      background: radial-gradient(ellipse at center, rgba(9,132,227,0.1) 0%, transparent 60%);
-      filter: blur(40px);
+    .demo-glow {
+      position: absolute; inset: -120px; z-index: -1; pointer-events: none;
+      background: radial-gradient(ellipse at 30% 40%, rgba(9,132,227,0.12) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 60%, rgba(0,206,201,0.1) 0%, transparent 50%);
+      filter: blur(60px); animation: demo-glow-pulse 6s ease-in-out infinite;
+    }
+    @keyframes demo-glow-pulse {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* App window */
+    .app-window {
+      background: #0d1117; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    .app-titlebar {
+      display: flex; align-items: center; gap: 8px; padding: 14px 18px;
+      background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .app-titlebar .td { width: 12px; height: 12px; border-radius: 50%; }
+    .app-titlebar .td:nth-child(1) { background: #ff5f57; }
+    .app-titlebar .td:nth-child(2) { background: #ffbd2e; }
+    .app-titlebar .td:nth-child(3) { background: #28c840; }
+    .app-titlebar .title-text {
+      flex: 1; text-align: center; font-size: 0.75rem; color: var(--text-dim);
+      font-weight: 500; letter-spacing: 0.03em;
+    }
+
+    .app-body {
+      display: grid; grid-template-columns: 220px 1fr 260px; min-height: 440px;
+    }
+
+    /* Sidebar */
+    .app-sidebar {
+      border-right: 1px solid rgba(255,255,255,0.04); padding: 16px 12px;
+      background: rgba(255,255,255,0.01);
+    }
+    .sidebar-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--text-dim); padding: 8px 10px 6px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px;
+      border-radius: 10px; font-size: 0.82rem; color: var(--text-muted);
+      margin-bottom: 2px; cursor: default; transition: all 0.2s;
+      opacity: 0; transform: translateX(-20px);
+    }
+    .sidebar-item.active {
+      background: rgba(9,132,227,0.1); color: var(--blue-light);
+      border: 1px solid rgba(9,132,227,0.15);
+    }
+    .sidebar-item .si-icon { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; }
+    .sidebar-item .si-dot {
+      width: 6px; height: 6px; border-radius: 50%; margin-left: auto; flex-shrink: 0;
+    }
+
+    /* Main content area */
+    .app-main { padding: 24px; position: relative; overflow: hidden; }
+    .app-main-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; opacity: 0;
+    }
+    .app-main-title { font-size: 1.1rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+    .recording-badge {
+      display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+      background: rgba(214,48,49,0.12); border: 1px solid rgba(214,48,49,0.2);
+      border-radius: 100px; font-size: 0.72rem; font-weight: 700; color: var(--red);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .rec-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--red);
+      animation: rec-blink 1s ease-in-out infinite;
+    }
+    @keyframes rec-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* Waveform */
+    .demo-waveform {
+      display: flex; align-items: center; gap: 1.5px; height: 60px;
+      margin-bottom: 24px; padding: 0 4px; opacity: 0;
+    }
+    .demo-waveform .wbar {
+      flex: 1; border-radius: 2px; min-width: 2px;
+      transition: height 0.15s ease-out;
+    }
+
+    /* Transcript lines */
+    .demo-transcript { display: flex; flex-direction: column; gap: 10px; }
+    .transcript-line {
+      display: flex; gap: 12px; font-size: 0.82rem; line-height: 1.6;
+      opacity: 0; transform: translateY(12px);
+    }
+    .transcript-time {
+      font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.72rem;
+      color: var(--text-dim); flex-shrink: 0; padding-top: 2px; min-width: 42px;
+    }
+    .transcript-speaker {
+      font-weight: 700; margin-right: 4px;
+    }
+    .transcript-text { color: var(--text-muted); }
+    .tl-cursor {
+      display: inline-block; width: 2px; height: 14px; background: var(--teal);
+      animation: blink-c 0.6s step-end infinite; vertical-align: text-bottom;
+      margin-left: 2px;
+    }
+
+    /* Right panel - AI notes */
+    .app-notes {
+      border-left: 1px solid rgba(255,255,255,0.04); padding: 16px 14px;
+      background: rgba(255,255,255,0.01);
+    }
+    .notes-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--teal); padding: 4px 0 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .notes-label .spark { font-size: 0.8rem; }
+    .note-card {
+      padding: 10px 12px; border-radius: 10px; margin-bottom: 8px;
+      font-size: 0.78rem; line-height: 1.5;
+      border: 1px solid rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.02);
+      opacity: 0; transform: translateX(20px) scale(0.95);
+    }
+    .note-card .note-type {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 4px;
+    }
+    .note-card p { color: var(--text-muted); }
+
+    /* Floating orbiting elements */
+    .orbit-ring {
+      position: absolute; border: 1px dashed rgba(255,255,255,0.03);
+      border-radius: 50%; pointer-events: none;
+    }
+    .orbit-dot {
+      position: absolute; width: 8px; height: 8px; border-radius: 50%;
+      pointer-events: none; filter: blur(0.5px);
+    }
+
+    /* Floating badges around the demo */
+    .float-badge {
+      position: absolute; padding: 8px 16px; border-radius: 100px;
+      font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+      background: var(--glass); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); color: var(--text-muted);
+      display: flex; align-items: center; gap: 6px;
+      opacity: 0; pointer-events: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .float-badge .fb-icon { font-size: 0.9rem; }
+
+    @media (max-width: 900px) {
+      .app-body { grid-template-columns: 1fr; }
+      .app-sidebar, .app-notes { display: none; }
+      .float-badge { display: none; }
     }
 
     /* ===== PINNED SHOWCASE (Apple-style) ===== */
@@ -700,14 +850,118 @@
     </div>
   </section>
 
-  <!-- ============ HERO VIDEO ============ -->
-  <div class="hero-video-showcase" id="heroVideoSection">
-    <div class="video-container">
-      <div class="video-glow"></div>
-      <video autoplay muted loop playsinline>
-        <source src="hero-animation.webm" type="video/webm">
-        <source src="hero-animation.mp4" type="video/mp4">
-      </video>
+  <!-- ============ HERO LIVE DEMO ============ -->
+  <div class="hero-live-demo" id="heroLiveDemo">
+    <div class="demo-wrapper">
+      <div class="demo-glow"></div>
+
+      <!-- Floating badges -->
+      <div class="float-badge" style="top: -20px; left: -60px;" id="fb1">
+        <span class="fb-icon">&#127911;</span> Whisper.cpp
+      </div>
+      <div class="float-badge" style="top: 60px; right: -70px;" id="fb2">
+        <span class="fb-icon">&#128274;</span> 100% Local
+      </div>
+      <div class="float-badge" style="bottom: 80px; left: -50px;" id="fb3">
+        <span class="fb-icon">&#9889;</span> GPU Accelerated
+      </div>
+      <div class="float-badge" style="bottom: -10px; right: -40px;" id="fb4">
+        <span class="fb-icon">&#129302;</span> MCP Ready
+      </div>
+
+      <!-- Orbiting dots -->
+      <div class="orbit-dot" style="background: var(--blue);" id="od1"></div>
+      <div class="orbit-dot" style="background: var(--teal);" id="od2"></div>
+      <div class="orbit-dot" style="background: var(--green);" id="od3"></div>
+      <div class="orbit-dot" style="background: var(--pink);" id="od4"></div>
+
+      <!-- App window mockup -->
+      <div class="app-window">
+        <div class="app-titlebar">
+          <div class="td"></div><div class="td"></div><div class="td"></div>
+          <span class="title-text">Samsariq &mdash; Sprint Planning Meeting</span>
+        </div>
+        <div class="app-body">
+          <!-- Sidebar -->
+          <div class="app-sidebar">
+            <div class="sidebar-label">Recordings</div>
+            <div class="sidebar-item active">
+              <span class="si-icon">&#127908;</span>
+              <span>Sprint Planning</span>
+              <span class="si-dot" style="background: var(--red);"></span>
+            </div>
+            <div class="sidebar-item">
+              <span class="si-icon">&#128196;</span>
+              <span>Design Review</span>
+            </div>
+            <div class="sidebar-item">
+              <span class="si-icon">&#128196;</span>
+              <span>1:1 with Sarah</span>
+            </div>
+            <div class="sidebar-item">
+              <span class="si-icon">&#128196;</span>
+              <span>API Kickoff</span>
+            </div>
+            <div class="sidebar-label" style="margin-top: 12px;">Notes</div>
+            <div class="sidebar-item">
+              <span class="si-icon">&#128221;</span>
+              <span>Quick Thoughts</span>
+            </div>
+            <div class="sidebar-item">
+              <span class="si-icon">&#128221;</span>
+              <span>Project Ideas</span>
+            </div>
+          </div>
+
+          <!-- Main area -->
+          <div class="app-main">
+            <div class="app-main-header">
+              <div class="app-main-title">Live Transcript</div>
+              <div class="recording-badge"><span class="rec-dot"></span> Recording</div>
+            </div>
+            <div class="demo-waveform" id="demoWaveform"></div>
+            <div class="demo-transcript" id="demoTranscript">
+              <div class="transcript-line">
+                <span class="transcript-time">0:42</span>
+                <span class="transcript-text"><span class="transcript-speaker" style="color:var(--blue-light);">Alex:</span> We need to finalize the API endpoints before the next release.</span>
+              </div>
+              <div class="transcript-line">
+                <span class="transcript-time">0:58</span>
+                <span class="transcript-text"><span class="transcript-speaker" style="color:var(--teal);">Sarah:</span> The auth middleware is ready. I can push it today.</span>
+              </div>
+              <div class="transcript-line">
+                <span class="transcript-time">1:14</span>
+                <span class="transcript-text"><span class="transcript-speaker" style="color:var(--green);">Mike:</span> What about the webhook integration? That's blocking QA.</span>
+              </div>
+              <div class="transcript-line">
+                <span class="transcript-time">1:31</span>
+                <span class="transcript-text"><span class="transcript-speaker" style="color:var(--orange);">Alex:</span> Let's prioritize that. Can we ship it by Thursday?<span class="tl-cursor"></span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right panel: AI-generated notes -->
+          <div class="app-notes">
+            <div class="notes-label"><span class="spark">&#10024;</span> AI Notes</div>
+            <div class="note-card">
+              <div class="note-type" style="color: var(--green);">&#9989; Action Item</div>
+              <p>Ship webhook integration by Thursday</p>
+            </div>
+            <div class="note-card">
+              <div class="note-type" style="color: var(--blue-light);">&#128204; Key Decision</div>
+              <p>API endpoints finalized for v2.1 release</p>
+            </div>
+            <div class="note-card">
+              <div class="note-type" style="color: var(--teal);">&#128203; Summary</div>
+              <p>Auth middleware ready to merge. Webhook blocking QA team.</p>
+            </div>
+            <div class="note-card">
+              <div class="note-type" style="color: var(--orange);">&#9888;&#65039; Blocker</div>
+              <p>QA pipeline paused until webhook PR lands</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1102,7 +1356,8 @@
         { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.8 }, 0.7);
       tl.to('.hero-buttons', { opacity: 1, y: 0, duration: 0.7, ease: 'back.out(1.3)' }, 0.9);
       tl.to('.scroll-indicator', { opacity: 1, duration: 0.8 }, 1.5);
-      tl.to('.hero-video-showcase', { opacity: 1, y: 0, duration: 1.0, ease: 'power2.out' }, 1.1);
+      tl.to('.hero-live-demo', { opacity: 1, y: 0, duration: 1.0, ease: 'power2.out' }, 1.1);
+      tl.add(() => startLiveDemo(), 1.6);
     }
 
     // ===== SCROLL INDICATOR HIDE =====
@@ -1263,6 +1518,122 @@
         if (t) lenis.scrollTo(t, { offset: -80 });
       });
     });
+
+    // ===== LIVE DEMO ANIMATION =====
+    function startLiveDemo() {
+      // Build waveform bars
+      const waveEl = document.getElementById('demoWaveform');
+      if (waveEl) {
+        for (let i = 0; i < 80; i++) {
+          const bar = document.createElement('div');
+          bar.className = 'wbar';
+          const colors = ['var(--blue)', 'var(--teal)', 'var(--green)', 'var(--blue-light)'];
+          bar.style.background = colors[i % colors.length];
+          bar.style.height = '4px';
+          bar.style.opacity = '0.6';
+          waveEl.appendChild(bar);
+        }
+      }
+
+      const demoTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      // Sidebar items stagger in
+      demoTl.to('.sidebar-item', {
+        opacity: 1, x: 0, duration: 0.4, stagger: 0.07
+      }, 0);
+
+      // Main header
+      demoTl.to('.app-main-header', { opacity: 1, duration: 0.4 }, 0.3);
+
+      // Waveform reveal
+      demoTl.to('.demo-waveform', { opacity: 1, duration: 0.3 }, 0.5);
+
+      // Animate waveform bars with a wave pattern
+      demoTl.add(() => {
+        animateWaveform();
+      }, 0.6);
+
+      // Transcript lines type in one by one
+      demoTl.to('.transcript-line', {
+        opacity: 1, y: 0, duration: 0.5, stagger: 0.6, ease: 'power2.out'
+      }, 0.8);
+
+      // AI note cards slide in from right
+      demoTl.to('.note-card', {
+        opacity: 1, x: 0, scale: 1, duration: 0.5, stagger: 0.4, ease: 'back.out(1.3)'
+      }, 1.8);
+
+      // Floating badges
+      demoTl.to('#fb1', { opacity: 1, duration: 0.5, ease: 'back.out(1.5)' }, 2.0);
+      demoTl.to('#fb2', { opacity: 1, duration: 0.5, ease: 'back.out(1.5)' }, 2.3);
+      demoTl.to('#fb3', { opacity: 1, duration: 0.5, ease: 'back.out(1.5)' }, 2.6);
+      demoTl.to('#fb4', { opacity: 1, duration: 0.5, ease: 'back.out(1.5)' }, 2.9);
+
+      // Float the badges gently
+      gsap.to('#fb1', { y: -8, duration: 2.5, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.to('#fb2', { y: 10, duration: 3, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 0.5 });
+      gsap.to('#fb3', { y: -6, duration: 2.8, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 1 });
+      gsap.to('#fb4', { y: 8, duration: 2.3, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 0.3 });
+
+      // Orbit dots
+      animateOrbitDots();
+    }
+
+    // Continuous waveform animation
+    function animateWaveform() {
+      const bars = document.querySelectorAll('#demoWaveform .wbar');
+      if (!bars.length) return;
+
+      function pulse() {
+        bars.forEach((bar, i) => {
+          const h = 4 + Math.random() * 50;
+          const o = 0.3 + Math.random() * 0.7;
+          gsap.to(bar, {
+            height: h + 'px',
+            opacity: o,
+            duration: 0.12 + Math.random() * 0.15,
+            ease: 'power2.out',
+            delay: (i % 10) * 0.01
+          });
+        });
+      }
+      pulse();
+      setInterval(pulse, 250);
+    }
+
+    // Orbiting dots around the demo
+    function animateOrbitDots() {
+      const wrapper = document.querySelector('.demo-wrapper');
+      if (!wrapper) return;
+      const rect = wrapper.getBoundingClientRect();
+      const cxOff = rect.width / 2;
+      const cyOff = rect.height / 2;
+
+      const dots = [
+        { el: '#od1', rx: cxOff + 60, ry: cyOff + 40, speed: 12, start: 0 },
+        { el: '#od2', rx: cxOff + 80, ry: cyOff + 20, speed: 18, start: 90 },
+        { el: '#od3', rx: cxOff + 50, ry: cyOff + 50, speed: 15, start: 180 },
+        { el: '#od4', rx: cxOff + 70, ry: cyOff + 30, speed: 20, start: 270 },
+      ];
+
+      dots.forEach(d => {
+        const el = document.querySelector(d.el);
+        if (!el) return;
+        gsap.set(el, { opacity: 0.6 });
+        gsap.to(d, {
+          start: d.start + 360,
+          duration: d.speed,
+          ease: 'none',
+          repeat: -1,
+          onUpdate: () => {
+            const angle = (d.start * Math.PI) / 180;
+            const x = cxOff + Math.cos(angle) * d.rx * 0.55;
+            const y = cyOff + Math.sin(angle) * d.ry * 0.55;
+            gsap.set(el, { left: x + 'px', top: y + 'px' });
+          }
+        });
+      });
+    }
 
     // ===== FETCH LATEST RELEASE DMG =====
     (async function() {
