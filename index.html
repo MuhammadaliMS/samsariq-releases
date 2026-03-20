@@ -766,22 +766,155 @@
     .footer-copy { font-size: 0.8rem; color: var(--text-dim); }
 
     /* ===== RESPONSIVE ===== */
+    /* ===== TABLET (max-width: 900px) ===== */
     @media (max-width: 900px) {
-      .bento-grid { grid-template-columns: 1fr 1fr; }
-      .bento-card.wide { grid-column: span 1; }
+      .bento-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        width: auto !important;
+        padding-right: 0;
+        transform: none !important;
+      }
+      .bento-card { width: auto !important; flex-shrink: unset; }
+      .bento-card.wide, .bento-card.tall { width: auto !important; }
       .mcp-layout { grid-template-columns: 1fr; }
       .privacy-grid { grid-template-columns: repeat(2, 1fr); }
       .platforms-grid { grid-template-columns: 1fr 1fr; }
       .showcase-slide .slide-inner { grid-template-columns: 1fr; gap: 40px; }
+
+      /* Disable stacking effect on tablet */
+      .privacy-section,
+      .mcp-section,
+      .platforms-section {
+        border-radius: 0;
+        margin-top: 0;
+        box-shadow: none;
+      }
     }
+
+    /* ===== MOBILE (max-width: 640px) ===== */
     @media (max-width: 640px) {
-      .bento-grid, .platforms-grid { grid-template-columns: 1fr; }
-      .privacy-grid { grid-template-columns: 1fr 1fr; }
+      .container { padding: 0 16px; }
+
+      /* Nav — hamburger menu */
       .nav-links { display: none; }
       .mobile-menu-btn { display: block; }
-      .hero { padding: 120px 16px 60px; }
+      nav.scrolled { padding: 10px 0; }
+
+      /* Mobile menu overlay */
+      .mobile-menu {
+        display: none;
+        position: fixed; inset: 0; z-index: 99;
+        background: rgba(10,10,15,0.97);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 32px;
+      }
+      .mobile-menu.active { display: flex; }
+      .mobile-menu a {
+        font-size: 1.5rem; font-weight: 600; color: var(--text);
+        transition: color 0.3s;
+      }
+      .mobile-menu a:hover { color: var(--teal); }
+      .mobile-menu .nav-cta {
+        margin-top: 16px; padding: 14px 40px; font-size: 1rem;
+      }
+
+      /* Hero */
+      .hero { padding: 100px 16px 40px; min-height: auto; }
+      .hero h1 { font-size: clamp(2.8rem, 12vw, 4.5rem); margin-bottom: 24px; }
+      .hero-sub { font-size: 0.95rem; margin-bottom: 32px; }
+      .hero-badge { font-size: 0.75rem; margin-bottom: 28px; padding: 6px 14px 6px 10px; }
+      .hero-buttons { flex-direction: column; align-items: center; gap: 12px; }
+      .btn-glow, .btn-ghost { width: 100%; max-width: 300px; justify-content: center; padding: 14px 28px; font-size: 0.92rem; }
+      .scroll-indicator { display: none; }
+
+      /* Hero wave canvas — smaller on mobile */
+      #heroWaveCanvas { opacity: 0.6; }
+
+      /* Live demo mockup */
+      .hero-live-demo { padding: 0 16px 60px; }
+      .demo-wrapper { max-width: 100%; }
+      .app-body { grid-template-columns: 1fr; min-height: 300px; }
+      .app-sidebar, .app-notes { display: none; }
+      .float-badge { display: none; }
+      .app-main { padding: 16px; }
+      .demo-waveform { height: 40px; }
+      .transcript-line { font-size: 0.78rem; }
+
+      /* Stats marquee */
+      .stat-chip .num { font-size: 1.8rem; }
+      .stat-chip .label { font-size: 0.78rem; }
+      .marquee-track { gap: 40px; }
+
+      /* Showcase */
+      .pinned-showcase { min-height: 200vh; }
+      .showcase-slide { padding: 0 16px; }
+      .showcase-slide .slide-inner { grid-template-columns: 1fr; gap: 24px; }
+      .showcase-text h2 { font-size: clamp(1.5rem, 6vw, 2.2rem); }
+      .showcase-text p { font-size: 0.92rem; }
+      .messy-notes, .clean-notes { padding: 20px; min-height: 280px; }
+
+      /* Features bento — vertical stack on mobile */
+      .features-section { padding: 80px 0; }
+      .bento-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: auto !important;
+        padding-right: 0 !important;
+        transform: none !important;
+      }
+      .bento-card {
+        width: 100% !important; flex-shrink: unset;
+        padding: 28px;
+      }
+      .bento-card.wide, .bento-card.tall { width: 100% !important; }
+      .bento-card h3 { font-size: 1.1rem; }
+      .section-title { font-size: clamp(2rem, 7vw, 3rem); }
+      .section-desc { font-size: 0.95rem; }
+
+      /* Integrations chips */
+      .integrations-bar { padding: 16px 0; }
+      .int-chip { font-size: 0.78rem; padding: 8px 14px; }
+
+      /* Privacy */
+      .privacy-section { padding: 80px 0; }
+      .privacy-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .privacy-card { padding: 20px; }
+      .privacy-big-text { font-size: clamp(2rem, 7vw, 3.5rem); margin-bottom: 32px; }
+
+      /* MCP */
+      .mcp-section { padding: 80px 0; }
+      .mcp-layout { grid-template-columns: 1fr; gap: 32px; }
+      .code-body { font-size: 0.72rem; padding: 16px; }
+      .mcp-feat { padding: 12px 16px; }
+      .mcp-feat span { font-size: 0.85rem; }
+
+      /* Platforms */
+      .platforms-section { padding: 80px 0; }
+      .platforms-grid { grid-template-columns: 1fr !important; gap: 12px; }
+      .platform-card { padding: 28px 20px; }
+
+      /* CTA */
+      .cta-section { padding: 40px 0 80px; }
+      .cta-card { padding: 60px 24px; border-radius: 24px; }
+      .cta-card h2 { font-size: clamp(1.8rem, 6vw, 2.5rem); }
+      .cta-card p { font-size: 0.95rem; }
+      .cta-buttons { flex-direction: column; align-items: center; gap: 12px; }
+      .btn-white, .btn-outline-white { width: 100%; max-width: 280px; justify-content: center; padding: 14px 28px; }
+
+      /* Footer */
       .footer-inner { flex-direction: column; gap: 24px; text-align: center; }
       .footer-links { flex-wrap: wrap; justify-content: center; }
+    }
+
+    /* ===== SMALL MOBILE (max-width: 380px) ===== */
+    @media (max-width: 380px) {
+      .hero h1 { font-size: 2.5rem; }
+      .privacy-grid { grid-template-columns: 1fr; }
+      .cta-card { padding: 48px 16px; }
     }
 
     /* ===== LOADER ===== */
@@ -842,6 +975,19 @@
       </button>
     </div>
   </nav>
+
+  <!-- Mobile menu overlay -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#showcase" onclick="closeMobileMenu()">Product</a>
+    <a href="#features" onclick="closeMobileMenu()">Features</a>
+    <a href="#privacy" onclick="closeMobileMenu()">Privacy</a>
+    <a href="#mcp" onclick="closeMobileMenu()">MCP</a>
+    <a href="#platforms" onclick="closeMobileMenu()">Platforms</a>
+    <a id="mobileDownloadBtn" href="https://github.com/MuhammadaliMS/samsariq-releases/releases/latest" class="nav-cta" onclick="closeMobileMenu()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download
+    </a>
+  </div>
 
   <!-- ============ HERO ============ -->
   <section class="hero" id="hero">
@@ -1644,50 +1790,52 @@
       });
     });
 
-    // ===== BOUNCY BENTO CARDS (HORIZONTAL SCROLL) =====
+    // ===== BOUNCY BENTO CARDS =====
     const bentoGrid = document.querySelector('.bento-grid');
-    const bentoContainer = document.querySelector('.features-section .container');
-
-    function getBentoScrollAmount() {
-      return -(bentoGrid.scrollWidth - window.innerWidth + 48);
-    }
+    const isMobile = window.innerWidth <= 900;
 
     // Animate cards in with elastic bounce
     ScrollTrigger.create({
       trigger: '.bento-grid', start: 'top 80%', once: true,
       onEnter: () => {
         gsap.fromTo('.bento-card',
-          { opacity: 0, y: 100, scale: 0.8 },
-          { opacity: 1, y: 0, scale: 1, duration: 1.2, stagger: 0.15, ease: 'elastic.out(1, 0.6)' }
+          { opacity: 0, y: isMobile ? 40 : 100, scale: 0.8 },
+          { opacity: 1, y: 0, scale: 1, duration: 1.2, stagger: isMobile ? 0.08 : 0.15, ease: 'elastic.out(1, 0.6)' }
         );
       }
     });
 
-    // Horizontal scroll for bento grid
-    const bentoTween = gsap.to(bentoGrid, {
-      x: getBentoScrollAmount,
-      ease: 'none'
-    });
+    // Horizontal scroll — desktop only
+    if (!isMobile) {
+      function getBentoScrollAmount() {
+        return -(bentoGrid.scrollWidth - window.innerWidth + 48);
+      }
 
-    ScrollTrigger.create({
-      trigger: '.features-section',
-      start: 'center center',
-      end: () => '+=' + (getBentoScrollAmount() * -1),
-      pin: true,
-      animation: bentoTween,
-      scrub: 1,
-      invalidateOnRefresh: true
-    });
+      const bentoTween = gsap.to(bentoGrid, {
+        x: getBentoScrollAmount,
+        ease: 'none'
+      });
 
-    // Bouncy hover (flat, no 3D tilt)
-    document.querySelectorAll('.bento-card').forEach(card => {
-      card.addEventListener('mouseenter', () => {
-        gsap.to(card, { scale: 1.04, y: -10, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
+      ScrollTrigger.create({
+        trigger: '.features-section',
+        start: 'center center',
+        end: () => '+=' + (getBentoScrollAmount() * -1),
+        pin: true,
+        animation: bentoTween,
+        scrub: 1,
+        invalidateOnRefresh: true
       });
-      card.addEventListener('mouseleave', () => {
-        gsap.to(card, { scale: 1, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.4)' });
+
+      // Bouncy hover — desktop only (no hover on touch)
+      document.querySelectorAll('.bento-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, { scale: 1.04, y: -10, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
+        });
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, { scale: 1, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.4)' });
+        });
       });
-    });
+    }
 
     // ===== PRIVACY SECTION =====
     gsap.from('.privacy-big-text', {
@@ -1729,24 +1877,25 @@
       }
     });
 
-    // ===== STACKING SECTION EFFECT =====
-    // Only stack privacy, MCP, platforms (features has its own horizontal scroll pin)
-    const stackSections = gsap.utils.toArray('.privacy-section, .mcp-section, .platforms-section');
-    stackSections.forEach((sec, i) => {
-      if (i === stackSections.length - 1) return;
-      ScrollTrigger.create({
-        trigger: sec,
-        start: 'top top',
-        pin: true,
-        pinSpacing: false,
-        animation: gsap.to(sec, {
-          scale: 0.92,
-          opacity: 0.5,
-          ease: 'none'
-        }),
-        scrub: true,
+    // ===== STACKING SECTION EFFECT (desktop only) =====
+    if (!isMobile) {
+      const stackSections = gsap.utils.toArray('.privacy-section, .mcp-section, .platforms-section');
+      stackSections.forEach((sec, i) => {
+        if (i === stackSections.length - 1) return;
+        ScrollTrigger.create({
+          trigger: sec,
+          start: 'top top',
+          pin: true,
+          pinSpacing: false,
+          animation: gsap.to(sec, {
+            scale: 0.92,
+            opacity: 0.5,
+            ease: 'none'
+          }),
+          scrub: true,
+        });
       });
-    });
+    }
 
     // ===== CTA =====
     ScrollTrigger.create({
@@ -1760,10 +1909,38 @@
       scrollTrigger: { trigger: 'footer', start: 'top 92%', once: true }
     });
 
+    // ===== MOBILE MENU =====
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    let menuOpen = false;
+
+    function closeMobileMenu() {
+      menuOpen = false;
+      mobileMenu.classList.remove('active');
+      document.body.style.overflow = '';
+      mobileMenuBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+    }
+    // Make closeMobileMenu available globally for onclick handlers
+    window.closeMobileMenu = closeMobileMenu;
+
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', () => {
+        menuOpen = !menuOpen;
+        if (menuOpen) {
+          mobileMenu.classList.add('active');
+          document.body.style.overflow = 'hidden';
+          mobileMenuBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>';
+        } else {
+          closeMobileMenu();
+        }
+      });
+    }
+
     // ===== SMOOTH SCROLL LINKS =====
     document.querySelectorAll('a[href^="#"]').forEach(a => {
       a.addEventListener('click', function(e) {
         e.preventDefault();
+        closeMobileMenu();
         const t = document.querySelector(this.getAttribute('href'));
         if (t) lenis.scrollTo(t, { offset: -80 });
       });
