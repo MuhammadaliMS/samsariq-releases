@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Samsariq — Privacy-First AI Meeting Assistant</title>
-  <meta name="description" content="Samsariq captures, transcribes, and summarizes your meetings entirely on your device. No cloud. No compromise. Just clarity.">
-  <meta name="keywords" content="meeting assistant, transcription, AI, privacy, local, whisper, MCP, desktop app">
-  <meta property="og:title" content="Samsariq — Privacy-First AI Meeting Assistant">
-  <meta property="og:description" content="Capture, transcribe, and summarize meetings locally. Your conversations never leave your device.">
+  <title>Samsariq — Privacy-First AI Notes & Meeting Assistant</title>
+  <meta name="description" content="Samsariq captures, transcribes, and summarizes your meetings and notes entirely on your device. No cloud. No compromise. Just clarity.">
+  <meta name="keywords" content="meeting assistant, note taking, transcription, AI, privacy, local, whisper, MCP, desktop app">
+  <meta property="og:title" content="Samsariq — Privacy-First AI Notes & Meeting Assistant">
+  <meta property="og:description" content="Capture, transcribe, and summarize meetings and notes locally. Your conversations never leave your device.">
   <meta property="og:image" content="logo.png">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://samsariq.com">
@@ -1191,7 +1191,7 @@
         <a href="#mcp">MCP</a>
         <a href="#platforms">Platforms</a>
       </div>
-      <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="nav-cta btn-magnetic" target="_blank">
+      <a id="navDownloadBtn" href="https://github.com/MuhammadaliMS/samsariq-releases/releases/latest" class="nav-cta btn-magnetic">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download
       </a>
@@ -1213,23 +1213,23 @@
 
       <div class="hero-badge">
         <span class="dot"></span>
-        Now available for macOS & Windows
+        Now available for macOS
       </div>
 
       <h1>
-        <span class="line"><span class="line-inner">Your meetings,</span></span>
-        <span class="line"><span class="line-inner"><span class="gradient-text">transcribed locally.</span></span></span>
+        <span class="line"><span class="line-inner">Your meetings & notes,</span></span>
+        <span class="line"><span class="line-inner"><span class="gradient-text">powered by local AI.</span></span></span>
       </h1>
 
       <p class="hero-sub">
-        Samsariq captures, transcribes, and summarizes your meetings entirely on your device.
-        No cloud uploads. No data leaks. Just crystal-clear meeting notes powered by local AI.
+        Samsariq captures, transcribes, and summarizes your meetings and notes entirely on your device.
+        No cloud uploads. No data leaks. Just crystal-clear intelligence powered by local AI.
       </p>
 
       <div class="hero-buttons">
-        <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-primary btn-magnetic" target="_blank">
+        <a id="heroDownloadBtn" href="https://github.com/MuhammadaliMS/samsariq-releases/releases/latest" class="btn-primary btn-magnetic">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download for Free
+          <span id="heroDownloadText">Download for macOS</span>
         </a>
         <a href="#features" class="btn-secondary btn-magnetic">
           Learn More
@@ -1244,7 +1244,7 @@
             <div class="dot"></div>
             <div class="dot"></div>
             <div class="dot"></div>
-            <span>Samsariq &mdash; Team Standup</span>
+            <span>Samsariq &mdash; Team Standup Notes</span>
           </div>
           <div class="app-mockup-body">
             <div class="app-sidebar">
@@ -1338,7 +1338,7 @@
           Features
         </div>
         <h2 class="section-title split-title">Everything you need. Nothing you don't.</h2>
-        <p class="section-desc">Samsariq is designed to do one thing exceptionally well: capture your meetings and turn them into actionable intelligence, all without leaving your machine.</p>
+        <p class="section-desc">Samsariq is designed to do one thing exceptionally well: capture your meetings and notes, and turn them into actionable intelligence — all without leaving your machine.</p>
       </div>
       <div class="features-grid">
         <div class="feature-card">
@@ -1346,42 +1346,42 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
           </div>
           <h3>Real-Time Transcription</h3>
-          <p>Powered by Whisper.cpp running locally with GPU acceleration. Get instant, accurate transcripts as your meeting unfolds.</p>
+          <p>Powered by Whisper.cpp running locally with GPU acceleration. Get instant, accurate transcripts as your meetings and voice notes unfold.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon gold">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
           </div>
-          <h3>AI Summaries</h3>
-          <p>Generate comprehensive meeting summaries, action items, and key decisions using local LLMs via Ollama or cloud APIs.</p>
+          <h3>AI Summaries & Notes</h3>
+          <p>Generate comprehensive summaries, action items, and structured notes from meetings or voice memos using local LLMs via Ollama or cloud APIs.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon pink">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           </div>
           <h3>Privacy First</h3>
-          <p>Your audio and transcripts never leave your device. No cloud processing, no third-party servers. Your conversations stay yours.</p>
+          <p>Your audio, transcripts, and notes never leave your device. No cloud processing, no third-party servers. Your data stays yours.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon orange">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           </div>
           <h3>MCP Integration</h3>
-          <p>Built-in Model Context Protocol support lets AI agents control recordings, query transcripts, and manage schedules programmatically.</p>
+          <p>Built-in Model Context Protocol support lets AI agents control recordings, query transcripts and notes, and manage schedules programmatically.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon purple">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
           <h3>Speaker Diarization</h3>
-          <p>Automatically identifies and labels different speakers in your meetings, making it easy to follow who said what.</p>
+          <p>Automatically identifies and labels different speakers in your meetings and recordings, making it easy to follow who said what.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon gold">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
-          <h3>Cross-Platform</h3>
-          <p>Native desktop app for macOS and Windows built with Tauri. Fast startup, minimal memory usage, and deep OS integration.</p>
+          <h3>Native Desktop App</h3>
+          <p>Built with Tauri for macOS, with Windows and Linux coming soon. Fast startup, minimal memory usage, and deep OS integration.</p>
         </div>
       </div>
     </div>
@@ -1398,14 +1398,14 @@
           How It Works
         </div>
         <h2 class="section-title split-title">Three steps to clarity</h2>
-        <p class="section-desc">No setup hassle. No accounts required. Just install, record, and get your meeting notes.</p>
+        <p class="section-desc">No setup hassle. No accounts required. Just install, record, and get your notes.</p>
       </div>
       <div class="how-it-works-grid">
         <div class="step-connector"></div>
         <div class="step-card">
           <div class="step-number">1</div>
           <h3>Start Recording</h3>
-          <p>Hit record or use the global push-to-talk shortcut. Samsariq captures both your microphone and system audio simultaneously.</p>
+          <p>Hit record or use the global push-to-talk shortcut. Capture meetings, voice memos, lectures, or any audio source.</p>
         </div>
         <div class="step-card">
           <div class="step-number">2</div>
@@ -1414,8 +1414,8 @@
         </div>
         <div class="step-card">
           <div class="step-number">3</div>
-          <h3>Get AI Summaries</h3>
-          <p>When you're done, get instant AI-generated summaries with action items, decisions, and key takeaways via local or cloud LLMs.</p>
+          <h3>Get AI Notes & Summaries</h3>
+          <p>Get instant AI-generated notes, summaries, action items, and key takeaways — organized and searchable via local or cloud LLMs.</p>
         </div>
       </div>
     </div>
@@ -1429,7 +1429,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           Works With
         </div>
-        <h2 class="section-title split-title" style="font-size:1.8rem;">Works with every meeting platform</h2>
+        <h2 class="section-title split-title" style="font-size:1.8rem;">Works with every platform</h2>
       </div>
     </div>
     <div class="integrations-row">
@@ -1466,7 +1466,7 @@
             Privacy & Security
           </div>
           <h2 class="section-title split-title">Your data stays on your device.</h2>
-          <p class="section-desc" style="margin-bottom:32px;">We built Samsariq with a simple philosophy: your meetings are your business. Every piece of audio processing happens locally on your machine.</p>
+          <p class="section-desc" style="margin-bottom:32px;">We built Samsariq with a simple philosophy: your meetings and notes are your business. Every piece of audio processing happens locally on your machine.</p>
           <a href="#" class="btn-secondary btn-magnetic" style="display:inline-flex;">
             Read our Privacy Policy
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
@@ -1527,24 +1527,24 @@
           MCP Integration
         </div>
         <h2 class="section-title split-title">Built for AI agents</h2>
-        <p class="section-desc">Samsariq exposes a full Model Context Protocol interface. Let your AI agents control recordings, query transcripts, and schedule meetings.</p>
+        <p class="section-desc">Samsariq exposes a full Model Context Protocol interface. Let your AI agents control recordings, query transcripts and notes, and schedule sessions.</p>
       </div>
       <div class="mcp-showcase">
         <div class="mcp-grid">
           <div>
             <h3 style="font-size:1.3rem;margin-bottom:12px;">Agent-First Architecture</h3>
             <p style="color:var(--text-muted);line-height:1.7;margin-bottom:24px;">
-              The MCP server runs over a Unix domain socket with a stdio companion binary. Your AI agents can start recordings, fetch transcripts, and manage meeting schedules — all programmatically.
+              The MCP server runs over a Unix domain socket with a stdio companion binary. Your AI agents can start recordings, fetch transcripts and notes, and manage schedules — all programmatically.
             </p>
             <div style="display:flex;flex-direction:column;gap:12px;">
               <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;">
                 <span style="color:var(--purple-light);">&#10003;</span> Start/stop recordings via MCP
               </div>
               <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;">
-                <span style="color:var(--gold);">&#10003;</span> Query transcripts and summaries
+                <span style="color:var(--gold);">&#10003;</span> Query transcripts, notes, and summaries
               </div>
               <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;">
-                <span style="color:var(--pink);">&#10003;</span> Schedule recurring meetings
+                <span style="color:var(--pink);">&#10003;</span> Schedule recurring sessions
               </div>
               <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;">
                 <span style="color:var(--orange);">&#10003;</span> Works with Claude, GPT, and more
@@ -1598,13 +1598,13 @@
           <div class="platform-icon">&#63743;</div>
           <h3>macOS</h3>
           <p>Metal GPU acceleration with ScreenCaptureKit for system audio capture</p>
-          <div class="platform-badge">Available Now</div>
+          <a id="platformDownloadBtn" href="https://github.com/MuhammadaliMS/samsariq-releases/releases/latest" class="platform-badge" style="text-decoration:none;cursor:pointer;">Download for Mac</a>
         </div>
         <div class="platform-card">
           <div class="platform-icon">&#128187;</div>
           <h3>Windows</h3>
           <p>WASAPI audio capture with CUDA and Vulkan GPU support</p>
-          <div class="platform-badge">Available Now</div>
+          <div class="platform-badge soon">Coming Soon</div>
         </div>
         <div class="platform-card">
           <div class="platform-icon">&#128039;</div>
@@ -1624,12 +1624,12 @@
         <div class="cta-glow-ring" id="ctaRing1"></div>
         <div class="cta-glow-ring" id="ctaRing2"></div>
         <div class="cta-glow-ring" id="ctaRing3"></div>
-        <h2>Ready to take back your<br>meeting privacy?</h2>
-        <p>Download Samsariq for free and experience the power of fully local AI meeting transcription.</p>
+        <h2>Ready to take back your<br>privacy?</h2>
+        <p>Download Samsariq for free and experience the power of fully local AI notes and meeting transcription.</p>
         <div class="cta-buttons">
-          <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-primary btn-magnetic" target="_blank">
+          <a id="ctaDownloadBtn" href="https://github.com/MuhammadaliMS/samsariq-releases/releases/latest" class="btn-primary btn-magnetic">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download Free
+            Download for macOS
           </a>
           <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-secondary btn-magnetic" target="_blank">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
@@ -2425,6 +2425,31 @@
         }
       });
     });
+
+    // ===== FETCH LATEST RELEASE DMG URL =====
+    (async function() {
+      try {
+        const res = await fetch('https://api.github.com/repos/MuhammadaliMS/samsariq-releases/releases/latest');
+        const data = await res.json();
+        const dmg = data.assets && data.assets.find(a => a.name.endsWith('.dmg'));
+        if (dmg) {
+          const url = dmg.browser_download_url;
+          const version = data.tag_name || '';
+          // Update all download buttons to point to the DMG
+          ['heroDownloadBtn', 'navDownloadBtn', 'ctaDownloadBtn', 'platformDownloadBtn'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.href = url;
+          });
+          // Update hero button text with version
+          const heroText = document.getElementById('heroDownloadText');
+          if (heroText && version) {
+            heroText.textContent = 'Download for macOS (' + version + ')';
+          }
+        }
+      } catch(e) {
+        // Fallback: buttons already point to releases/latest page
+      }
+    })();
   </script>
 
 </body>
