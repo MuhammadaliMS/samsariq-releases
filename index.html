@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Samsariq — Privacy-First AI Meeting Assistant</title>
+  <meta name="description" content="Samsariq captures, transcribes, and summarizes your meetings entirely on your device. No cloud. No compromise. Just clarity.">
+  <meta name="keywords" content="meeting assistant, transcription, AI, privacy, local, whisper, MCP, desktop app">
+  <meta property="og:title" content="Samsariq — Privacy-First AI Meeting Assistant">
+  <meta property="og:description" content="Capture, transcribe, and summarize meetings locally. Your conversations never leave your device.">
+  <meta property="og:image" content="logo.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://samsariq.com">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --purple: #4a3aaf;
+      --purple-dark: #3B2D8F;
+      --purple-light: #6b5dd3;
+      --gold: #F0C75E;
+      --gold-light: #fae0a0;
+      --pink: #F0B4D0;
+      --pink-light: #f8d8e8;
+      --orange: #E8753A;
+      --orange-light: #f5a574;
+      --bg: #09090b;
+      --bg-card: #111114;
+      --bg-card-hover: #1a1a1f;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --border: #27272a;
+      --border-light: #3f3f46;
+      --gradient-purple: linear-gradient(135deg, #4a3aaf 0%, #6b5dd3 100%);
+      --gradient-gold: linear-gradient(135deg, #F0C75E 0%, #fae0a0 100%);
+      --gradient-hero: linear-gradient(160deg, rgba(74,58,175,0.15) 0%, rgba(240,199,94,0.08) 50%, rgba(240,180,208,0.06) 100%);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; line-height: 1.15; }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ===== ANIMATED BACKGROUND GRID ===== */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(74,58,175,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74,58,175,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(150px);
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-glow-1 { top: -200px; left: -100px; background: var(--purple); }
+    .bg-glow-2 { top: 40%; right: -200px; background: var(--gold); opacity: 0.08; }
+    .bg-glow-3 { bottom: -100px; left: 30%; background: var(--pink); opacity: 0.06; }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      transition: all 0.3s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(9,9,11,0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo img { width: 36px; height: 36px; border-radius: 8px; }
+
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      background: var(--gradient-purple);
+      color: #fff;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(74,58,175,0.4);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      z-index: 1;
+      padding: 160px 0 100px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px 6px 8px;
+      background: rgba(74,58,175,0.12);
+      border: 1px solid rgba(74,58,175,0.25);
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--purple-light);
+      margin-bottom: 28px;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 50%, var(--pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: var(--gradient-purple);
+      color: #fff;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(74,58,175,0.4);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: transparent;
+      color: var(--text);
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn-secondary:hover {
+      background: var(--bg-card);
+      border-color: var(--text-dim);
+    }
+
+    /* ===== HERO VISUAL (app mockup) ===== */
+    .hero-visual {
+      margin-top: 72px;
+      position: relative;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    .app-mockup {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+    }
+
+    .app-mockup-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--border);
+    }
+    .app-mockup-titlebar .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .app-mockup-titlebar .dot:nth-child(1) { background: #ff5f57; }
+    .app-mockup-titlebar .dot:nth-child(2) { background: #ffbd2e; }
+    .app-mockup-titlebar .dot:nth-child(3) { background: #28c840; }
+    .app-mockup-titlebar span {
+      flex: 1;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .app-mockup-body {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 420px;
+    }
+
+    .app-sidebar {
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+    }
+    .app-sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      transition: all 0.2s;
+    }
+    .app-sidebar-item.active {
+      background: rgba(74,58,175,0.12);
+      color: var(--purple-light);
+    }
+    .app-sidebar-item .icon { font-size: 1rem; }
+
+    .app-main {
+      padding: 24px;
+    }
+    .app-main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .app-main-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .recording-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #ef4444;
+    }
+    .recording-badge .rec-dot {
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: pulse-dot 1.2s ease-in-out infinite;
+    }
+
+    .transcript-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .transcript-line {
+      display: flex;
+      gap: 12px;
+    }
+    .transcript-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .transcript-content {}
+    .transcript-speaker {
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .transcript-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .transcript-text .highlight {
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    .waveform-bar {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .wave-line {
+      width: 3px;
+      background: var(--purple-light);
+      border-radius: 2px;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+    @keyframes wave {
+      0%, 100% { height: 8px; opacity: 0.4; }
+      50% { height: 28px; opacity: 1; }
+    }
+
+    /* ===== STATS ===== */
+    .stats {
+      position: relative;
+      z-index: 1;
+      padding: 60px 0;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .stat-item {
+      background: var(--bg-card);
+      padding: 32px;
+      text-align: center;
+      transition: background 0.3s;
+    }
+    .stat-item:hover { background: var(--bg-card-hover); }
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .stat-number.purple { color: var(--purple-light); }
+    .stat-number.gold { color: var(--gold); }
+    .stat-number.pink { color: var(--pink); }
+    .stat-number.orange { color: var(--orange); }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ===== SECTION SHARED ===== */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 100px 0;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--purple-light);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 580px;
+      line-height: 1.7;
+    }
+
+    .section-header {
+      margin-bottom: 60px;
+    }
+    .section-header.center { text-align: center; }
+    .section-header.center .section-desc { margin: 0 auto; }
+
+    /* ===== FEATURES GRID ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-purple);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+    }
+    .feature-icon.purple { background: rgba(74,58,175,0.15); color: var(--purple-light); }
+    .feature-icon.gold { background: rgba(240,199,94,0.15); color: var(--gold); }
+    .feature-icon.pink { background: rgba(240,180,208,0.15); color: var(--pink); }
+    .feature-icon.orange { background: rgba(232,117,58,0.15); color: var(--orange); }
+
+    .feature-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .feature-card p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .how-it-works-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+    .how-it-works-grid::before {
+      content: '';
+      position: absolute;
+      top: 56px;
+      left: 16.66%;
+      right: 16.66%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--gold), var(--orange));
+      opacity: 0.3;
+    }
+
+    .step-card {
+      text-align: center;
+      position: relative;
+    }
+    .step-number {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0 auto 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .step-card:nth-child(1) .step-number { background: rgba(74,58,175,0.2); color: var(--purple-light); border: 2px solid var(--purple); }
+    .step-card:nth-child(2) .step-number { background: rgba(240,199,94,0.2); color: var(--gold); border: 2px solid var(--gold); }
+    .step-card:nth-child(3) .step-number { background: rgba(232,117,58,0.2); color: var(--orange); border: 2px solid var(--orange); }
+    .step-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+    }
+    .step-card p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    /* ===== INTEGRATIONS / TECH SECTION ===== */
+    .integrations-row {
+      display: flex;
+      gap: 20px;
+      overflow: hidden;
+      padding: 20px 0;
+      position: relative;
+    }
+
+    .integration-track {
+      display: flex;
+      gap: 20px;
+      animation: scroll-left 30s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .integration-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      white-space: nowrap;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .integration-chip .chip-icon {
+      font-size: 1.1rem;
+    }
+
+    /* ===== PRIVACY SECTION ===== */
+    .privacy-section {
+      position: relative;
+      z-index: 1;
+    }
+
+    .privacy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .privacy-visual {
+      position: relative;
+    }
+
+    .privacy-card-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .privacy-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: all 0.3s;
+    }
+    .privacy-item:hover {
+      border-color: var(--border-light);
+      transform: translateX(8px);
+    }
+    .privacy-item .check {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+    }
+    .privacy-item:nth-child(1) .check { background: rgba(74,174,128,0.15); color: #4ade80; }
+    .privacy-item:nth-child(2) .check { background: rgba(74,58,175,0.15); color: var(--purple-light); }
+    .privacy-item:nth-child(3) .check { background: rgba(240,199,94,0.15); color: var(--gold); }
+    .privacy-item:nth-child(4) .check { background: rgba(240,180,208,0.15); color: var(--pink); }
+    .privacy-item h4 { font-size: 1rem; margin-bottom: 2px; }
+    .privacy-item p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* ===== MCP SECTION ===== */
+    .mcp-showcase {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px;
+      margin-top: 48px;
+    }
+    .mcp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.82rem;
+    }
+    .code-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+    .code-body {
+      padding: 20px;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .code-body .keyword { color: var(--purple-light); }
+    .code-body .string { color: var(--gold); }
+    .code-body .comment { color: var(--text-dim); }
+    .code-body .func { color: var(--orange); }
+
+    /* ===== PLATFORMS ===== */
+    .platforms-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .platform-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 28px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .platform-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .platform-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    .platform-card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+    .platform-card p { font-size: 0.88rem; color: var(--text-muted); }
+    .platform-badge {
+      display: inline-flex;
+      padding: 4px 12px;
+      background: rgba(74,58,175,0.12);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--purple-light);
+      margin-top: 12px;
+    }
+    .platform-badge.soon {
+      background: rgba(240,199,94,0.12);
+      color: var(--gold);
+    }
+
+    /* ===== CTA ===== */
+    .cta-section {
+      position: relative;
+      z-index: 1;
+      padding: 100px 0 120px;
+    }
+
+    .cta-card {
+      background: var(--gradient-hero);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 72px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: var(--purple);
+      opacity: 0.06;
+      filter: blur(80px);
+    }
+
+    .cta-card h2 {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .cta-card p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 500px;
+      margin: 0 auto 36px;
+      position: relative;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 48px 0;
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .footer-logo img { width: 28px; height: 28px; border-radius: 6px; }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+    }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .features-grid,
+      .how-it-works-grid,
+      .platforms-grid { grid-template-columns: 1fr 1fr; }
+      .privacy-grid,
+      .mcp-grid { grid-template-columns: 1fr; }
+      .app-mockup-body { grid-template-columns: 1fr; }
+      .app-sidebar { display: none; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-it-works-grid::before { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .features-grid,
+      .how-it-works-grid,
+      .platforms-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: block; }
+      .hero { padding: 130px 0 60px; }
+      .mcp-showcase { padding: 28px; }
+      .cta-card { padding: 48px 24px; }
+      .footer-inner { flex-direction: column; gap: 24px; text-align: center; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background effects -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <img src="logo.png" alt="Samsariq">
+        <span>Samsariq</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#mcp">MCP</a>
+        <a href="#platforms">Platforms</a>
+      </div>
+      <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="nav-cta" target="_blank">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </a>
+      <button class="mobile-menu-btn" onclick="document.querySelector('.nav-links').classList.toggle('show')" aria-label="Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Now available for macOS & Windows
+      </div>
+
+      <h1>
+        Your meetings,<br>
+        <span class="gradient-text">transcribed locally.</span>
+      </h1>
+
+      <p class="hero-sub">
+        Samsariq captures, transcribes, and summarizes your meetings entirely on your device.
+        No cloud uploads. No data leaks. Just crystal-clear meeting notes powered by local AI.
+      </p>
+
+      <div class="hero-buttons">
+        <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-primary" target="_blank">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download for Free
+        </a>
+        <a href="#features" class="btn-secondary">
+          Learn More
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+      </div>
+
+      <!-- App Mockup -->
+      <div class="hero-visual">
+        <div class="app-mockup">
+          <div class="app-mockup-titlebar">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <span>Samsariq &mdash; Team Standup</span>
+          </div>
+          <div class="app-mockup-body">
+            <div class="app-sidebar">
+              <div class="app-sidebar-item active">
+                <span class="icon">&#9679;</span> Team Standup
+              </div>
+              <div class="app-sidebar-item">
+                <span class="icon">&#9675;</span> Product Review
+              </div>
+              <div class="app-sidebar-item">
+                <span class="icon">&#9675;</span> Design Sync
+              </div>
+              <div class="app-sidebar-item">
+                <span class="icon">&#9675;</span> Sprint Planning
+              </div>
+              <div class="app-sidebar-item">
+                <span class="icon">&#9675;</span> Client Call
+              </div>
+            </div>
+            <div class="app-main">
+              <div class="app-main-header">
+                <h3>Live Transcript</h3>
+                <div class="recording-badge">
+                  <span class="rec-dot"></span>
+                  Recording
+                </div>
+              </div>
+              <div class="transcript-lines">
+                <div class="transcript-line">
+                  <div class="transcript-avatar" style="background:rgba(74,58,175,0.2);color:var(--purple-light)">A</div>
+                  <div class="transcript-content">
+                    <div class="transcript-speaker" style="color:var(--purple-light)">Alex</div>
+                    <div class="transcript-text">We shipped the <span class="highlight">new API endpoints</span> yesterday. All tests are passing and the staging deployment looks good.</div>
+                  </div>
+                </div>
+                <div class="transcript-line">
+                  <div class="transcript-avatar" style="background:rgba(240,199,94,0.2);color:var(--gold)">S</div>
+                  <div class="transcript-content">
+                    <div class="transcript-speaker" style="color:var(--gold)">Sarah</div>
+                    <div class="transcript-text">Great work! I'll review the <span class="highlight">MCP integration</span> today and merge by end of day.</div>
+                  </div>
+                </div>
+                <div class="transcript-line">
+                  <div class="transcript-avatar" style="background:rgba(232,117,58,0.2);color:var(--orange)">M</div>
+                  <div class="transcript-content">
+                    <div class="transcript-speaker" style="color:var(--orange)">Mike</div>
+                    <div class="transcript-text">The <span class="highlight">transcription accuracy</span> has improved by 15% with the new Whisper model. Local processing is running smoothly.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="waveform-bar" id="waveform">
+                <!-- Generated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="container">
+      <div class="stats-grid reveal">
+        <div class="stat-item">
+          <div class="stat-number purple">100%</div>
+          <div class="stat-label">Local Processing</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number gold">4x</div>
+          <div class="stat-label">Faster Than Manual Notes</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number pink">100+</div>
+          <div class="stat-label">Languages Supported</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number orange">0</div>
+          <div class="stat-label">Cloud Dependencies</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header center">
+        <div class="section-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Features
+        </div>
+        <h2 class="section-title">Everything you need.<br>Nothing you don't.</h2>
+        <p class="section-desc">Samsariq is designed to do one thing exceptionally well: capture your meetings and turn them into actionable intelligence, all without leaving your machine.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <h3>Real-Time Transcription</h3>
+          <p>Powered by Whisper.cpp running locally with GPU acceleration. Get instant, accurate transcripts as your meeting unfolds.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon gold">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          </div>
+          <h3>AI Summaries</h3>
+          <p>Generate comprehensive meeting summaries, action items, and key decisions using local LLMs via Ollama or cloud APIs.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon pink">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3>Privacy First</h3>
+          <p>Your audio and transcripts never leave your device. No cloud processing, no third-party servers. Your conversations stay yours.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon orange">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>MCP Integration</h3>
+          <p>Built-in Model Context Protocol support lets AI agents control recordings, query transcripts, and manage schedules programmatically.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>Speaker Diarization</h3>
+          <p>Automatically identifies and labels different speakers in your meetings, making it easy to follow who said what.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon gold">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h3>Cross-Platform</h3>
+          <p>Native desktop app for macOS and Windows built with Tauri. Fast startup, minimal memory usage, and deep OS integration.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works">
+    <div class="container">
+      <div class="section-header center">
+        <div class="section-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          How It Works
+        </div>
+        <h2 class="section-title">Three steps to clarity</h2>
+        <p class="section-desc">No setup hassle. No accounts required. Just install, record, and get your meeting notes.</p>
+      </div>
+      <div class="how-it-works-grid">
+        <div class="step-card reveal">
+          <div class="step-number">1</div>
+          <h3>Start Recording</h3>
+          <p>Hit record or use the global push-to-talk shortcut. Samsariq captures both your microphone and system audio simultaneously.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-number">2</div>
+          <h3>Watch It Transcribe</h3>
+          <p>Whisper.cpp processes your audio locally with GPU acceleration. See real-time transcripts appear as the conversation flows.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-number">3</div>
+          <h3>Get AI Summaries</h3>
+          <p>When you're done, get instant AI-generated summaries with action items, decisions, and key takeaways via local or cloud LLMs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Integrations Marquee -->
+  <div style="position:relative;z-index:1;padding:40px 0;">
+    <div class="container">
+      <div class="section-header center" style="margin-bottom:32px;">
+        <div class="section-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Works With
+        </div>
+        <h2 class="section-title" style="font-size:1.8rem;">Works with every meeting platform</h2>
+      </div>
+    </div>
+    <div class="integrations-row">
+      <div class="integration-track">
+        <div class="integration-chip"><span class="chip-icon">&#128247;</span> Zoom</div>
+        <div class="integration-chip"><span class="chip-icon">&#128101;</span> Google Meet</div>
+        <div class="integration-chip"><span class="chip-icon">&#128172;</span> Microsoft Teams</div>
+        <div class="integration-chip"><span class="chip-icon">&#127897;</span> Slack Huddles</div>
+        <div class="integration-chip"><span class="chip-icon">&#128187;</span> Discord</div>
+        <div class="integration-chip"><span class="chip-icon">&#127911;</span> Any Audio Source</div>
+        <div class="integration-chip"><span class="chip-icon">&#128214;</span> Webinars</div>
+        <div class="integration-chip"><span class="chip-icon">&#127908;</span> Podcasts</div>
+        <div class="integration-chip"><span class="chip-icon">&#128247;</span> Zoom</div>
+        <div class="integration-chip"><span class="chip-icon">&#128101;</span> Google Meet</div>
+        <div class="integration-chip"><span class="chip-icon">&#128172;</span> Microsoft Teams</div>
+        <div class="integration-chip"><span class="chip-icon">&#127897;</span> Slack Huddles</div>
+        <div class="integration-chip"><span class="chip-icon">&#128187;</span> Discord</div>
+        <div class="integration-chip"><span class="chip-icon">&#127911;</span> Any Audio Source</div>
+        <div class="integration-chip"><span class="chip-icon">&#128214;</span> Webinars</div>
+        <div class="integration-chip"><span class="chip-icon">&#127908;</span> Podcasts</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Section -->
+  <section id="privacy" class="privacy-section">
+    <div class="container">
+      <div class="privacy-grid">
+        <div>
+          <div class="section-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Privacy & Security
+          </div>
+          <h2 class="section-title">Your data stays<br>on your device.</h2>
+          <p class="section-desc" style="margin-bottom:32px;">We built Samsariq with a simple philosophy: your meetings are your business. Every piece of audio processing happens locally on your machine.</p>
+          <a href="#" class="btn-secondary" style="display:inline-flex;">
+            Read our Privacy Policy
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </a>
+        </div>
+        <div class="privacy-visual">
+          <div class="privacy-card-stack">
+            <div class="privacy-item reveal">
+              <div class="check">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div>
+                <h4>Zero Cloud Processing</h4>
+                <p>All transcription runs locally via Whisper.cpp</p>
+              </div>
+            </div>
+            <div class="privacy-item reveal">
+              <div class="check">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div>
+                <h4>No Account Required</h4>
+                <p>Start using immediately with no sign-up</p>
+              </div>
+            </div>
+            <div class="privacy-item reveal">
+              <div class="check">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div>
+                <h4>Local Data Storage</h4>
+                <p>SQLite database stored on your machine only</p>
+              </div>
+            </div>
+            <div class="privacy-item reveal">
+              <div class="check">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div>
+                <h4>Open Source</h4>
+                <p>Fully auditable codebase — verify our claims</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MCP Section -->
+  <section id="mcp">
+    <div class="container">
+      <div class="section-header center">
+        <div class="section-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          MCP Integration
+        </div>
+        <h2 class="section-title">Built for AI agents</h2>
+        <p class="section-desc">Samsariq exposes a full Model Context Protocol interface. Let your AI agents control recordings, query transcripts, and schedule meetings.</p>
+      </div>
+      <div class="mcp-showcase reveal">
+        <div class="mcp-grid">
+          <div>
+            <h3 style="font-size:1.3rem;margin-bottom:12px;">Agent-First Architecture</h3>
+            <p style="color:var(--text-muted);line-height:1.7;margin-bottom:24px;">
+              The MCP server runs over a Unix domain socket with a stdio companion binary. Your AI agents can start recordings, fetch transcripts, and manage meeting schedules — all programmatically.
+            </p>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;">
+                <span style="color:var(--purple-light);">&#10003;</span> Start/stop recordings via MCP
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;">
+                <span style="color:var(--gold);">&#10003;</span> Query transcripts and summaries
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;">
+                <span style="color:var(--pink);">&#10003;</span> Schedule recurring meetings
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;">
+                <span style="color:var(--orange);">&#10003;</span> Works with Claude, GPT, and more
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                mcp_config.json
+              </div>
+              <div class="code-body">
+<span class="comment">// Add to your MCP client config</span><br>
+{<br>
+&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"samsariq"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">"command"</span>: <span class="string">"samsariq_mcp"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">"transport"</span>: <span class="string">"stdio"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}<br>
+<br>
+<span class="comment">// Then ask your AI agent:</span><br>
+<span class="comment">// "Start recording my standup"</span><br>
+<span class="comment">// "Summarize today's meetings"</span><br>
+<span class="comment">// "Schedule weekly sync at 10am"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platforms -->
+  <section id="platforms">
+    <div class="container">
+      <div class="section-header center">
+        <div class="section-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Platforms
+        </div>
+        <h2 class="section-title">Available on your desktop</h2>
+        <p class="section-desc">Native apps built with Tauri for lightning-fast performance and minimal resource usage.</p>
+      </div>
+      <div class="platforms-grid">
+        <div class="platform-card reveal">
+          <div class="platform-icon">&#63743;</div>
+          <h3>macOS</h3>
+          <p>Metal GPU acceleration with ScreenCaptureKit for system audio capture</p>
+          <div class="platform-badge">Available Now</div>
+        </div>
+        <div class="platform-card reveal">
+          <div class="platform-icon">&#128187;</div>
+          <h3>Windows</h3>
+          <p>WASAPI audio capture with CUDA and Vulkan GPU support</p>
+          <div class="platform-badge">Available Now</div>
+        </div>
+        <div class="platform-card reveal">
+          <div class="platform-icon">&#128039;</div>
+          <h3>Linux</h3>
+          <p>PulseAudio / ALSA support with CUDA and Vulkan acceleration</p>
+          <div class="platform-badge soon">Coming Soon</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-card reveal">
+        <h2>Ready to take back your<br>meeting privacy?</h2>
+        <p>Download Samsariq for free and experience the power of fully local AI meeting transcription.</p>
+        <div class="cta-buttons">
+          <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-primary" target="_blank">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Free
+          </a>
+          <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-secondary" target="_blank">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-logo">
+          <img src="logo.png" alt="Samsariq">
+          <span>Samsariq</span>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/MuhammadaliMS/samsariq-releases" target="_blank">GitHub</a>
+          <a href="#features">Features</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#mcp">MCP</a>
+          <a href="mailto:contact@samsariq.com">Contact</a>
+        </div>
+        <div class="footer-copy">&copy; 2025 Samsariq. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+    // ===== NAV SCROLL =====
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // ===== GENERATE WAVEFORM BARS =====
+    const waveformEl = document.getElementById('waveform');
+    for (let i = 0; i < 80; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'wave-line';
+      bar.style.animationDelay = `${Math.random() * 1.2}s`;
+      bar.style.height = `${8 + Math.random() * 20}px`;
+      bar.style.opacity = `${0.3 + Math.random() * 0.7}`;
+      waveformEl.appendChild(bar);
+    }
+
+    // ===== GSAP ANIMATIONS =====
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero entrance
+    const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    heroTl.to('.hero-badge', { opacity: 1, y: 0, duration: 0.8 }, 0.2)
+           .to('.hero h1', { opacity: 1, y: 0, duration: 0.9 }, 0.4)
+           .to('.hero-sub', { opacity: 1, y: 0, duration: 0.8 }, 0.6)
+           .to('.hero-buttons', { opacity: 1, y: 0, duration: 0.8 }, 0.8)
+           .to('.hero-visual', { opacity: 1, y: 0, duration: 1.0 }, 1.0);
+
+    // Scroll reveal for all .reveal elements
+    gsap.utils.toArray('.reveal').forEach((el) => {
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 88%",
+          once: true,
+        }
+      });
+    });
+
+    // Stats counter animation
+    gsap.utils.toArray('.stat-number').forEach((el) => {
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 90%",
+        once: true,
+        onEnter: () => {
+          el.style.transition = "transform 0.5s ease";
+          el.style.transform = "scale(1.08)";
+          setTimeout(() => { el.style.transform = "scale(1)"; }, 300);
+        }
+      });
+    });
+
+    // Feature cards stagger
+    ScrollTrigger.create({
+      trigger: '.features-grid',
+      start: "top 80%",
+      once: true,
+      onEnter: () => {
+        gsap.to('.feature-card', {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "power2.out"
+        });
+      }
+    });
+
+    // Parallax glow movement
+    window.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      document.querySelectorAll('.bg-glow').forEach((glow, i) => {
+        const speed = (i + 1) * 0.5;
+        glow.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+      });
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
