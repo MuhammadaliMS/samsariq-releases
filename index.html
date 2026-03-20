@@ -81,12 +81,9 @@
     .cursor-ring.expand { width: 80px; height: 80px; border-color: var(--teal); }
     @media (hover: none) { .cursor { display: none; } }
 
-    /* ===== THREE.JS HERO CANVAS ===== */
-    #heroWebGL {
+    /* ===== HERO SOUNDWAVE CANVAS ===== */
+    #heroWaveCanvas {
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    }
-    #heroWebGL canvas {
-      width: 100% !important; height: 100% !important;
     }
 
 
@@ -794,8 +791,8 @@
   <div class="cursor" id="cursorDot"><div class="cursor-dot"></div></div>
   <div class="cursor" id="cursorRing"><div class="cursor-ring"></div></div>
 
-  <!-- Three.js Hero WebGL Background -->
-  <div id="heroWebGL"></div>
+  <!-- Hero Soundwave Canvas -->
+  <canvas id="heroWaveCanvas"></canvas>
 
 
   <!-- Noise Overlay -->
@@ -1234,8 +1231,6 @@
   </footer>
 
   <!-- ===== SCRIPTS ===== -->
-  <!-- Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- Lenis Smooth Scroll -->
   <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
   <!-- GSAP -->
@@ -1258,208 +1253,146 @@
       mouseY = e.clientY / window.innerHeight;
     });
 
-    (function initHeroWebGL() {
-      const container = document.getElementById('heroWebGL');
-      let renderer;
-      try {
-        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      } catch(e) { console.warn('WebGL not available for hero'); return; }
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      container.appendChild(renderer.domElement);
+    // ===== SMOOTH SOUNDWAVE HERO BACKGROUND =====
+    (function initHeroWaves() {
+      const canvas = document.getElementById('heroWaveCanvas');
+      const ctx = canvas.getContext('2d');
+      const dpr = Math.min(window.devicePixelRatio, 2);
 
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.z = 30;
+      function resize() {
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
+        ctx.scale(dpr, dpr);
+      }
+      resize();
+      window.addEventListener('resize', resize);
 
-      // --- Waveform ring particles ---
-      const RING_COUNT = 3;
-      const PTS_PER_RING = 180;
-      const rings = [];
-      const ringColors = [
-        new THREE.Color(0x0984E3), // blue
-        new THREE.Color(0x00CEC9), // teal
-        new THREE.Color(0x00B894), // green
+      // Wave configuration — each wave is a smooth flowing line
+      const waves = [
+        // Central bold waves
+        { y: 0.50, amp: 60, freq: 0.003, speed: 0.8, color: '9,132,227', alpha: 0.15, width: 2.5, phase: 0 },
+        { y: 0.50, amp: 45, freq: 0.004, speed: 1.0, color: '0,206,201', alpha: 0.12, width: 2.0, phase: 1.5 },
+        { y: 0.50, amp: 35, freq: 0.005, speed: 1.3, color: '0,184,148', alpha: 0.10, width: 1.8, phase: 3.0 },
+        // Upper waves
+        { y: 0.35, amp: 40, freq: 0.002, speed: 0.6, color: '9,132,227', alpha: 0.08, width: 1.5, phase: 0.8 },
+        { y: 0.35, amp: 30, freq: 0.003, speed: 0.9, color: '116,185,255', alpha: 0.06, width: 1.2, phase: 2.2 },
+        // Lower waves
+        { y: 0.65, amp: 40, freq: 0.002, speed: 0.7, color: '0,206,201', alpha: 0.08, width: 1.5, phase: 4.0 },
+        { y: 0.65, amp: 25, freq: 0.004, speed: 1.1, color: '0,184,148', alpha: 0.06, width: 1.2, phase: 5.5 },
+        // Subtle wide background waves
+        { y: 0.45, amp: 80, freq: 0.001, speed: 0.4, color: '9,132,227', alpha: 0.04, width: 3.0, phase: 1.0 },
+        { y: 0.55, amp: 70, freq: 0.0015, speed: 0.5, color: '0,206,201', alpha: 0.04, width: 3.0, phase: 2.5 },
+        // Thin fast accent waves
+        { y: 0.48, amp: 25, freq: 0.006, speed: 1.8, color: '253,121,168', alpha: 0.06, width: 1.0, phase: 0.5 },
+        { y: 0.52, amp: 20, freq: 0.007, speed: 2.0, color: '225,112,85', alpha: 0.05, width: 1.0, phase: 3.5 },
+        { y: 0.50, amp: 15, freq: 0.008, speed: 2.3, color: '253,203,110', alpha: 0.04, width: 0.8, phase: 5.0 },
       ];
 
-      for (let r = 0; r < RING_COUNT; r++) {
-        const geom = new THREE.BufferGeometry();
-        const positions = new Float32Array(PTS_PER_RING * 3);
-        const basePositions = new Float32Array(PTS_PER_RING * 3);
-        const sizes = new Float32Array(PTS_PER_RING);
-        const radius = 8 + r * 4;
-
-        for (let i = 0; i < PTS_PER_RING; i++) {
-          const angle = (i / PTS_PER_RING) * Math.PI * 2;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
-          positions[i * 3] = x;
-          positions[i * 3 + 1] = y;
-          positions[i * 3 + 2] = 0;
-          basePositions[i * 3] = x;
-          basePositions[i * 3 + 1] = y;
-          basePositions[i * 3 + 2] = 0;
-          sizes[i] = 1.5 + Math.random() * 1.5;
-        }
-
-        geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geom.setAttribute('basePosition', new THREE.BufferAttribute(basePositions, 3));
-        geom.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-        const mat = new THREE.PointsMaterial({
-          color: ringColors[r],
-          size: 1.5,
-          transparent: true,
-          opacity: 0.25 - r * 0.05,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false,
-          sizeAttenuation: true,
+      // Glow orbs that float around
+      const orbs = [];
+      for (let i = 0; i < 6; i++) {
+        orbs.push({
+          x: Math.random(), y: Math.random(),
+          r: 80 + Math.random() * 150,
+          speedX: (Math.random() - 0.5) * 0.0003,
+          speedY: (Math.random() - 0.5) * 0.0002,
+          color: ['9,132,227','0,206,201','0,184,148','253,121,168','225,112,85','253,203,110'][i],
+          alpha: 0.06 + Math.random() * 0.04,
+          phase: Math.random() * Math.PI * 2,
         });
-
-        const points = new THREE.Points(geom, mat);
-        scene.add(points);
-        rings.push({ points, geom, radius, speed: 0.15 + r * 0.08, waveAmp: 1.5 + r * 0.8, phase: r * 2.1 });
       }
 
-      // --- Floating ambient particles ---
-      const AMBIENT_COUNT = 400;
-      const ambientGeom = new THREE.BufferGeometry();
-      const ambientPos = new Float32Array(AMBIENT_COUNT * 3);
-      const ambientVel = [];
-      const ambientColors = new Float32Array(AMBIENT_COUNT * 3);
-      const palette = [
-        new THREE.Color(0x0984E3),
-        new THREE.Color(0x00CEC9),
-        new THREE.Color(0x00B894),
-        new THREE.Color(0xFD79A8),
-        new THREE.Color(0xE17055),
-      ];
+      let t = 0;
 
-      for (let i = 0; i < AMBIENT_COUNT; i++) {
-        ambientPos[i * 3] = (Math.random() - 0.5) * 60;
-        ambientPos[i * 3 + 1] = (Math.random() - 0.5) * 40;
-        ambientPos[i * 3 + 2] = (Math.random() - 0.5) * 30 - 5;
-        ambientVel.push({
-          x: (Math.random() - 0.5) * 0.01,
-          y: (Math.random() - 0.5) * 0.01,
-          z: (Math.random() - 0.5) * 0.005,
+      function drawWaves() {
+        requestAnimationFrame(drawWaves);
+        t += 0.016;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Draw glow orbs (subtle ambient light)
+        orbs.forEach(orb => {
+          orb.x += orb.speedX + Math.sin(t * 0.3 + orb.phase) * 0.0002;
+          orb.y += orb.speedY + Math.cos(t * 0.2 + orb.phase) * 0.00015;
+          // Mouse influence
+          orb.x += (mouseX - 0.5) * 0.0001;
+          orb.y += (mouseY - 0.5) * 0.0001;
+          // Wrap
+          if (orb.x > 1.2) orb.x = -0.2;
+          if (orb.x < -0.2) orb.x = 1.2;
+          if (orb.y > 1.2) orb.y = -0.2;
+          if (orb.y < -0.2) orb.y = 1.2;
+
+          const grad = ctx.createRadialGradient(
+            orb.x * w, orb.y * h, 0,
+            orb.x * w, orb.y * h, orb.r
+          );
+          grad.addColorStop(0, `rgba(${orb.color},${orb.alpha})`);
+          grad.addColorStop(1, `rgba(${orb.color},0)`);
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
         });
-        const c = palette[Math.floor(Math.random() * palette.length)];
-        ambientColors[i * 3] = c.r;
-        ambientColors[i * 3 + 1] = c.g;
-        ambientColors[i * 3 + 2] = c.b;
-      }
 
-      ambientGeom.setAttribute('position', new THREE.BufferAttribute(ambientPos, 3));
-      ambientGeom.setAttribute('color', new THREE.BufferAttribute(ambientColors, 3));
+        // Draw each wave as a smooth bezier curve
+        waves.forEach(wave => {
+          const baseY = wave.y * h;
+          const mouseInfluenceX = (mouseX - 0.5) * 30;
+          const mouseInfluenceY = (mouseY - 0.5) * 20;
+          const points = [];
+          const step = 4; // pixel step for smoothness
 
-      const ambientMat = new THREE.PointsMaterial({
-        size: 1.0,
-        transparent: true,
-        opacity: 0.18,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        vertexColors: true,
-        sizeAttenuation: true,
-      });
-      const ambientPts = new THREE.Points(ambientGeom, ambientMat);
-      scene.add(ambientPts);
-
-      // --- Connecting lines between nearby ambient particles ---
-      const lineGeom = new THREE.BufferGeometry();
-      const MAX_LINES = 200;
-      const linePositions = new Float32Array(MAX_LINES * 6);
-      const lineColors = new Float32Array(MAX_LINES * 6);
-      lineGeom.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-      lineGeom.setAttribute('color', new THREE.BufferAttribute(lineColors, 3));
-      const lineMat = new THREE.LineBasicMaterial({
-        transparent: true, opacity: 0.04, vertexColors: true,
-        blending: THREE.AdditiveBlending, depthWrite: false,
-      });
-      const lines = new THREE.LineSegments(lineGeom, lineMat);
-      scene.add(lines);
-
-      let time = 0;
-
-      function animateHeroWebGL() {
-        requestAnimationFrame(animateHeroWebGL);
-        time += 0.016;
-
-        // Mouse influence on camera
-        camera.position.x += ((mouseX - 0.5) * 6 - camera.position.x) * 0.03;
-        camera.position.y += ((mouseY - 0.5) * -4 - camera.position.y) * 0.03;
-        camera.lookAt(0, 0, 0);
-
-        // Animate waveform rings
-        rings.forEach(ring => {
-          const pos = ring.geom.attributes.position.array;
-          const base = ring.geom.attributes.basePosition.array;
-          for (let i = 0; i < PTS_PER_RING; i++) {
-            const angle = (i / PTS_PER_RING) * Math.PI * 2;
-            // Audio-like wave distortion
-            const wave = Math.sin(angle * 8 + time * ring.speed * 10 + ring.phase) *
-                         Math.sin(angle * 3 + time * ring.speed * 6) *
-                         ring.waveAmp;
-            const mouseInfluence = Math.sin(angle + (mouseX - 0.5) * 4) * (mouseY - 0.5) * 2;
-            const dist = ring.radius + wave + mouseInfluence;
-            pos[i * 3] = Math.cos(angle) * dist;
-            pos[i * 3 + 1] = Math.sin(angle) * dist;
-            pos[i * 3 + 2] = Math.sin(angle * 5 + time * 2) * 0.5;
+          for (let x = -20; x <= w + 20; x += step) {
+            const nx = x / w; // normalized x
+            // Layer multiple sine waves for organic audio feel
+            const y = baseY
+              + Math.sin(x * wave.freq + t * wave.speed + wave.phase) * wave.amp
+              + Math.sin(x * wave.freq * 2.3 + t * wave.speed * 0.7 + wave.phase * 1.5) * wave.amp * 0.4
+              + Math.sin(x * wave.freq * 0.5 + t * wave.speed * 1.3) * wave.amp * 0.25
+              + Math.sin(nx * Math.PI * 3 + t * 0.5) * mouseInfluenceY
+              + mouseInfluenceX * Math.sin(nx * Math.PI * 2) * 0.3;
+            points.push({ x, y });
           }
-          ring.geom.attributes.position.needsUpdate = true;
-          ring.points.rotation.z += ring.speed * 0.003;
-        });
 
-        // Animate ambient particles
-        const aPos = ambientGeom.attributes.position.array;
-        for (let i = 0; i < AMBIENT_COUNT; i++) {
-          aPos[i * 3] += ambientVel[i].x + Math.sin(time + i) * 0.003;
-          aPos[i * 3 + 1] += ambientVel[i].y + Math.cos(time + i * 0.7) * 0.003;
-          aPos[i * 3 + 2] += ambientVel[i].z;
-          // Wrap around
-          if (aPos[i * 3] > 30) aPos[i * 3] = -30;
-          if (aPos[i * 3] < -30) aPos[i * 3] = 30;
-          if (aPos[i * 3 + 1] > 20) aPos[i * 3 + 1] = -20;
-          if (aPos[i * 3 + 1] < -20) aPos[i * 3 + 1] = 20;
-        }
-        ambientGeom.attributes.position.needsUpdate = true;
+          // Draw smooth curve
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
 
-        // Update connecting lines
-        let lineIdx = 0;
-        const lp = lineGeom.attributes.position.array;
-        const lc = lineGeom.attributes.color.array;
-        for (let i = 0; i < AMBIENT_COUNT && lineIdx < MAX_LINES; i++) {
-          for (let j = i + 1; j < AMBIENT_COUNT && lineIdx < MAX_LINES; j++) {
-            const dx = aPos[i * 3] - aPos[j * 3];
-            const dy = aPos[i * 3 + 1] - aPos[j * 3 + 1];
-            const dz = aPos[i * 3 + 2] - aPos[j * 3 + 2];
-            const d = dx * dx + dy * dy + dz * dz;
-            if (d < 25) {
-              lp[lineIdx * 6] = aPos[i * 3]; lp[lineIdx * 6 + 1] = aPos[i * 3 + 1]; lp[lineIdx * 6 + 2] = aPos[i * 3 + 2];
-              lp[lineIdx * 6 + 3] = aPos[j * 3]; lp[lineIdx * 6 + 4] = aPos[j * 3 + 1]; lp[lineIdx * 6 + 5] = aPos[j * 3 + 2];
-              const ac = ambientColors;
-              lc[lineIdx * 6] = ac[i * 3]; lc[lineIdx * 6 + 1] = ac[i * 3 + 1]; lc[lineIdx * 6 + 2] = ac[i * 3 + 2];
-              lc[lineIdx * 6 + 3] = ac[j * 3]; lc[lineIdx * 6 + 4] = ac[j * 3 + 1]; lc[lineIdx * 6 + 5] = ac[j * 3 + 2];
-              lineIdx++;
-            }
+          for (let i = 1; i < points.length - 2; i++) {
+            const xc = (points[i].x + points[i + 1].x) / 2;
+            const yc = (points[i].y + points[i + 1].y) / 2;
+            ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
           }
-        }
-        // Zero out unused lines
-        for (let i = lineIdx; i < MAX_LINES; i++) {
-          lp[i * 6] = lp[i * 6 + 1] = lp[i * 6 + 2] = lp[i * 6 + 3] = lp[i * 6 + 4] = lp[i * 6 + 5] = 0;
-        }
-        lineGeom.attributes.position.needsUpdate = true;
-        lineGeom.attributes.color.needsUpdate = true;
+          // Last segment
+          const last = points[points.length - 1];
+          ctx.lineTo(last.x, last.y);
 
-        renderer.render(scene, camera);
+          ctx.strokeStyle = `rgba(${wave.color},${wave.alpha})`;
+          ctx.lineWidth = wave.width;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.stroke();
+
+          // Draw a subtle glow version underneath
+          ctx.save();
+          ctx.shadowColor = `rgba(${wave.color},${wave.alpha * 2})`;
+          ctx.shadowBlur = 15;
+          ctx.strokeStyle = `rgba(${wave.color},${wave.alpha * 0.5})`;
+          ctx.lineWidth = wave.width + 4;
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          for (let i = 1; i < points.length - 2; i++) {
+            const xc = (points[i].x + points[i + 1].x) / 2;
+            const yc = (points[i].y + points[i + 1].y) / 2;
+            ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+          }
+          ctx.lineTo(last.x, last.y);
+          ctx.stroke();
+          ctx.restore();
+        });
       }
-      animateHeroWebGL();
-
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
+      drawWaves();
     })();
 
     // ===== SHOWCASE CHAOS-TO-ORDER PARTICLES (2D Canvas) =====
