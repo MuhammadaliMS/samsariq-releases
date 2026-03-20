@@ -521,21 +521,25 @@
     .stat-sep { width: 4px; height: 4px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
 
     /* ===== FEATURES BENTO GRID ===== */
+    .features-section {
+      position: relative; z-index: 2; padding: 140px 0;
+      background: #0a0a0f; overflow: visible;
+    }
+
     /* ===== STACKABLE SECTION CARDS ===== */
-    .features-section,
     .privacy-section,
     .mcp-section,
     .platforms-section {
       position: relative;
       z-index: 2;
       padding: 140px 0;
+      background: var(--dark);
       border-radius: 40px 40px 0 0;
       margin-top: -40px;
       box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
       transform-origin: top center;
       overflow: hidden;
     }
-    .features-section { background: #0a0a0f; }
     .privacy-section { background: #0d1117; }
     .mcp-section { background: #12121a; }
     .platforms-section { background: #0a0a0f; }
@@ -1726,9 +1730,10 @@
     });
 
     // ===== STACKING SECTION EFFECT =====
-    const stackSections = gsap.utils.toArray('.features-section, .privacy-section, .mcp-section, .platforms-section');
+    // Only stack privacy, MCP, platforms (features has its own horizontal scroll pin)
+    const stackSections = gsap.utils.toArray('.privacy-section, .mcp-section, .platforms-section');
     stackSections.forEach((sec, i) => {
-      if (i === stackSections.length - 1) return; // Don't pin the last section
+      if (i === stackSections.length - 1) return;
       ScrollTrigger.create({
         trigger: sec,
         start: 'top top',
