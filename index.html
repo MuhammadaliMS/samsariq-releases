@@ -42,7 +42,7 @@
       --gradient-hero: linear-gradient(160deg, rgba(74,58,175,0.15) 0%, rgba(240,199,94,0.08) 50%, rgba(240,180,208,0.06) 100%);
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: auto; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -59,7 +59,11 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 
-    /* ===== ANIMATED BACKGROUND GRID ===== */
+    /* ===== SMOOTH SCROLL WRAPPER ===== */
+    #smooth-wrapper { overflow: hidden; position: fixed; height: 100%; width: 100%; top: 0; left: 0; }
+    #smooth-content { will-change: transform; }
+
+    /* ===== ANIMATED BACKGROUND ===== */
     .bg-grid {
       position: fixed;
       inset: 0;
@@ -84,6 +88,55 @@
     .bg-glow-1 { top: -200px; left: -100px; background: var(--purple); }
     .bg-glow-2 { top: 40%; right: -200px; background: var(--gold); opacity: 0.08; }
     .bg-glow-3 { bottom: -100px; left: 30%; background: var(--pink); opacity: 0.06; }
+
+    /* ===== FLOATING GEOMETRIC SHAPES ===== */
+    .geo-shapes {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .geo-shape {
+      position: absolute;
+      border: 1px solid;
+      opacity: 0;
+    }
+    .geo-shape.circle { border-radius: 50%; }
+    .geo-shape.diamond { transform: rotate(45deg); }
+    .geo-shape.triangle {
+      width: 0 !important; height: 0 !important;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 35px solid;
+      background: none !important;
+      border-top: none;
+    }
+
+    /* ===== CURSOR FOLLOWER ===== */
+    .cursor-follower {
+      position: fixed;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(74,58,175,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+
+    /* ===== SCROLL PROGRESS BAR ===== */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--purple), var(--gold), var(--pink), var(--orange));
+      z-index: 9999;
+      transform-origin: left;
+    }
 
     /* ===== NAV ===== */
     nav {
@@ -129,8 +182,20 @@
       font-weight: 500;
       color: var(--text-muted);
       transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--purple-light);
+      transition: width 0.3s ease;
     }
     .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
 
     .nav-cta {
       display: inline-flex;
@@ -201,14 +266,29 @@
       letter-spacing: -0.03em;
       line-height: 1.05;
       margin-bottom: 24px;
-      opacity: 0;
-      transform: translateY(30px);
+      overflow: hidden;
+    }
+    .hero h1 .line {
+      display: block;
+      overflow: hidden;
+    }
+    .hero h1 .line-inner {
+      display: block;
+      transform: translateY(120%);
     }
     .hero h1 .gradient-text {
       background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 50%, var(--pink) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      background-size: 200% 100%;
+    }
+
+    /* ===== HERO CHAR ANIMATION ===== */
+    .char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(40px) rotateX(40deg);
     }
 
     .hero-sub {
@@ -230,10 +310,18 @@
       transform: translateY(30px);
     }
 
-    .btn-primary {
+    /* ===== MAGNETIC BUTTONS ===== */
+    .btn-magnetic {
+      position: relative;
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: box-shadow 0.3s;
+    }
+
+    .btn-primary {
       padding: 14px 32px;
       background: var(--gradient-purple);
       color: #fff;
@@ -241,19 +329,27 @@
       font-size: 1rem;
       font-weight: 600;
       border: none;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      font-family: inherit;
+      position: relative;
+      overflow: hidden;
     }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+    .btn-primary:hover::before { width: 300px; height: 300px; }
     .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(74,58,175,0.4);
+      box-shadow: 0 12px 40px rgba(74,58,175,0.5);
     }
 
     .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
       padding: 14px 32px;
       background: transparent;
       color: var(--text);
@@ -261,21 +357,21 @@
       font-size: 1rem;
       font-weight: 600;
       border: 1px solid var(--border-light);
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: inherit;
+      transition: all 0.3s;
     }
     .btn-secondary:hover {
       background: var(--bg-card);
       border-color: var(--text-dim);
+      transform: translateY(-2px);
     }
 
-    /* ===== HERO VISUAL (app mockup) ===== */
+    /* ===== HERO VISUAL ===== */
     .hero-visual {
       margin-top: 72px;
       position: relative;
       opacity: 0;
-      transform: translateY(40px);
+      transform: translateY(60px) scale(0.95);
+      perspective: 1000px;
     }
 
     .app-mockup {
@@ -286,7 +382,25 @@
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+      transform-style: preserve-3d;
     }
+
+    /* Glowing border effect on mockup */
+    .app-mockup::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 18px;
+      background: conic-gradient(from 0deg, var(--purple), var(--gold), var(--pink), var(--orange), var(--purple));
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.5s;
+      animation: rotate-border 4s linear infinite;
+    }
+    @keyframes rotate-border {
+      to { filter: hue-rotate(360deg); }
+    }
+    .app-mockup:hover::before { opacity: 0.4; }
 
     .app-mockup-titlebar {
       display: flex;
@@ -328,6 +442,8 @@
       color: var(--text-muted);
       margin-bottom: 4px;
       transition: all 0.2s;
+      opacity: 0;
+      transform: translateX(-20px);
     }
     .app-sidebar-item.active {
       background: rgba(74,58,175,0.12);
@@ -335,19 +451,14 @@
     }
     .app-sidebar-item .icon { font-size: 1rem; }
 
-    .app-main {
-      padding: 24px;
-    }
+    .app-main { padding: 24px; }
     .app-main-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 24px;
     }
-    .app-main-header h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
+    .app-main-header h3 { font-size: 1.1rem; font-weight: 600; }
     .recording-badge {
       display: flex;
       align-items: center;
@@ -368,14 +479,12 @@
       animation: pulse-dot 1.2s ease-in-out infinite;
     }
 
-    .transcript-lines {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .transcript-lines { display: flex; flex-direction: column; gap: 16px; }
     .transcript-line {
       display: flex;
       gap: 12px;
+      opacity: 0;
+      transform: translateY(15px);
     }
     .transcript-avatar {
       width: 32px;
@@ -389,21 +498,13 @@
       flex-shrink: 0;
       margin-top: 2px;
     }
-    .transcript-content {}
-    .transcript-speaker {
-      font-size: 0.78rem;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
+    .transcript-speaker { font-size: 0.78rem; font-weight: 600; margin-bottom: 2px; }
     .transcript-text {
       font-size: 0.85rem;
       color: var(--text-muted);
       line-height: 1.6;
     }
-    .transcript-text .highlight {
-      color: var(--gold);
-      font-weight: 500;
-    }
+    .transcript-text .highlight { color: var(--gold); font-weight: 500; }
 
     .waveform-bar {
       display: flex;
@@ -426,6 +527,19 @@
       50% { height: 28px; opacity: 1; }
     }
 
+    /* ===== FLOATING PARTICLES ===== */
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+    }
+
     /* ===== STATS ===== */
     .stats {
       position: relative;
@@ -446,8 +560,21 @@
       padding: 32px;
       text-align: center;
       transition: background 0.3s;
+      position: relative;
+      overflow: hidden;
     }
     .stat-item:hover { background: var(--bg-card-hover); }
+    .stat-item::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-purple);
+      transition: width 0.4s ease, left 0.4s ease;
+    }
+    .stat-item:hover::after { width: 100%; left: 0; }
     .stat-number {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 2.2rem;
@@ -488,6 +615,14 @@
       letter-spacing: -0.02em;
       margin-bottom: 16px;
     }
+    .section-title .word {
+      display: inline-block;
+      overflow: hidden;
+    }
+    .section-title .word-inner {
+      display: inline-block;
+      transform: translateY(100%);
+    }
 
     .section-desc {
       font-size: 1.1rem;
@@ -496,11 +631,17 @@
       line-height: 1.7;
     }
 
-    .section-header {
-      margin-bottom: 60px;
-    }
+    .section-header { margin-bottom: 60px; }
     .section-header.center { text-align: center; }
     .section-header.center .section-desc { margin: 0 auto; }
+
+    /* ===== HORIZONTAL LINE ===== */
+    .h-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+      margin: 0;
+      transform: scaleX(0);
+    }
 
     /* ===== FEATURES GRID ===== */
     .features-grid {
@@ -514,9 +655,11 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 32px;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
       overflow: hidden;
+      opacity: 0;
+      transform: translateY(40px);
     }
     .feature-card::before {
       content: '';
@@ -529,12 +672,25 @@
       opacity: 0;
       transition: opacity 0.3s;
     }
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(74,58,175,0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
     .feature-card:hover {
       border-color: var(--border-light);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      transform: translateY(-6px) !important;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.35);
     }
     .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover::after { opacity: 1; }
 
     .feature-icon {
       width: 48px;
@@ -545,22 +701,16 @@
       justify-content: center;
       font-size: 1.3rem;
       margin-bottom: 20px;
+      transition: transform 0.3s;
     }
+    .feature-card:hover .feature-icon { transform: scale(1.1) rotate(5deg); }
     .feature-icon.purple { background: rgba(74,58,175,0.15); color: var(--purple-light); }
     .feature-icon.gold { background: rgba(240,199,94,0.15); color: var(--gold); }
     .feature-icon.pink { background: rgba(240,180,208,0.15); color: var(--pink); }
     .feature-icon.orange { background: rgba(232,117,58,0.15); color: var(--orange); }
 
-    .feature-card h3 {
-      font-size: 1.15rem;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-    .feature-card p {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      line-height: 1.65;
-    }
+    .feature-card h3 { font-size: 1.15rem; margin-bottom: 10px; font-weight: 600; }
+    .feature-card p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.65; }
 
     /* ===== HOW IT WORKS ===== */
     .how-it-works-grid {
@@ -569,8 +719,8 @@
       gap: 32px;
       position: relative;
     }
-    .how-it-works-grid::before {
-      content: '';
+
+    .step-connector {
       position: absolute;
       top: 56px;
       left: 16.66%;
@@ -578,11 +728,15 @@
       height: 2px;
       background: linear-gradient(90deg, var(--purple), var(--gold), var(--orange));
       opacity: 0.3;
+      transform: scaleX(0);
+      transform-origin: left;
     }
 
     .step-card {
       text-align: center;
       position: relative;
+      opacity: 0;
+      transform: translateY(40px);
     }
     .step-number {
       width: 56px;
@@ -597,14 +751,13 @@
       margin: 0 auto 24px;
       position: relative;
       z-index: 1;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    .step-card:hover .step-number { transform: scale(1.15); }
     .step-card:nth-child(1) .step-number { background: rgba(74,58,175,0.2); color: var(--purple-light); border: 2px solid var(--purple); }
     .step-card:nth-child(2) .step-number { background: rgba(240,199,94,0.2); color: var(--gold); border: 2px solid var(--gold); }
     .step-card:nth-child(3) .step-number { background: rgba(232,117,58,0.2); color: var(--orange); border: 2px solid var(--orange); }
-    .step-card h3 {
-      font-size: 1.15rem;
-      margin-bottom: 10px;
-    }
+    .step-card h3 { font-size: 1.15rem; margin-bottom: 10px; }
     .step-card p {
       font-size: 0.92rem;
       color: var(--text-muted);
@@ -613,13 +766,33 @@
       margin: 0 auto;
     }
 
-    /* ===== INTEGRATIONS / TECH SECTION ===== */
+    /* Step number pulse ring */
+    .step-number::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      opacity: 0;
+      animation: step-pulse 2.5s ease-out infinite;
+    }
+    .step-card:nth-child(1) .step-number::after { animation-delay: 0s; }
+    .step-card:nth-child(2) .step-number::after { animation-delay: 0.8s; }
+    .step-card:nth-child(3) .step-number::after { animation-delay: 1.6s; }
+    @keyframes step-pulse {
+      0% { transform: scale(1); opacity: 0.5; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* ===== INTEGRATIONS MARQUEE ===== */
     .integrations-row {
       display: flex;
       gap: 20px;
       overflow: hidden;
       padding: 20px 0;
       position: relative;
+      mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
     }
 
     .integration-track {
@@ -646,26 +819,19 @@
       font-weight: 500;
       color: var(--text-muted);
       flex-shrink: 0;
+      transition: border-color 0.3s, color 0.3s, transform 0.3s;
     }
-    .integration-chip .chip-icon {
-      font-size: 1.1rem;
-    }
+    .integration-chip:hover { border-color: var(--purple-light); color: var(--text); transform: scale(1.05); }
+    .integration-chip .chip-icon { font-size: 1.1rem; }
 
     /* ===== PRIVACY SECTION ===== */
-    .privacy-section {
-      position: relative;
-      z-index: 1;
-    }
+    .privacy-section { position: relative; z-index: 1; }
 
     .privacy-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 48px;
       align-items: center;
-    }
-
-    .privacy-visual {
-      position: relative;
     }
 
     .privacy-card-stack {
@@ -682,11 +848,14 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 14px;
-      transition: all 0.3s;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0;
+      transform: translateX(40px);
     }
     .privacy-item:hover {
       border-color: var(--border-light);
-      transform: translateX(8px);
+      transform: translateX(12px) !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     }
     .privacy-item .check {
       width: 36px;
@@ -712,6 +881,8 @@
       border-radius: 20px;
       padding: 48px;
       margin-top: 48px;
+      opacity: 0;
+      transform: translateY(40px);
     }
     .mcp-grid {
       display: grid;
@@ -746,6 +917,26 @@
     .code-body .comment { color: var(--text-dim); }
     .code-body .func { color: var(--orange); }
 
+    /* ===== CODE TYPING ANIMATION ===== */
+    .code-line {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+
+    /* Typing cursor for code block */
+    .typing-cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: var(--gold);
+      margin-left: 2px;
+      animation: blink-cursor 0.8s step-end infinite;
+      vertical-align: text-bottom;
+    }
+    @keyframes blink-cursor {
+      50% { opacity: 0; }
+    }
+
     /* ===== PLATFORMS ===== */
     .platforms-grid {
       display: grid;
@@ -759,17 +950,22 @@
       border-radius: 16px;
       padding: 36px 28px;
       text-align: center;
-      transition: all 0.3s;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
     }
     .platform-card:hover {
       border-color: var(--border-light);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      transform: translateY(-6px) scale(1) !important;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.35);
     }
     .platform-icon {
       font-size: 2.5rem;
       margin-bottom: 16px;
+      display: inline-block;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+    .platform-card:hover .platform-icon { transform: scale(1.2) translateY(-4px); }
     .platform-card h3 { font-size: 1.15rem; margin-bottom: 6px; }
     .platform-card p { font-size: 0.88rem; color: var(--text-muted); }
     .platform-badge {
@@ -802,6 +998,8 @@
       text-align: center;
       position: relative;
       overflow: hidden;
+      opacity: 0;
+      transform: translateY(40px) scale(0.97);
     }
     .cta-card::before {
       content: '';
@@ -814,6 +1012,31 @@
       background: var(--purple);
       opacity: 0.06;
       filter: blur(80px);
+    }
+    .cta-card::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.04;
+      filter: blur(80px);
+    }
+
+    /* CTA glow ring */
+    .cta-glow-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 1px solid rgba(74,58,175,0.15);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
     }
 
     .cta-card h2 {
@@ -865,34 +1088,20 @@
       transition: color 0.2s;
     }
     .footer-links a:hover { color: var(--text); }
-    .footer-copy {
-      font-size: 0.82rem;
-      color: var(--text-dim);
-    }
-
-    /* ===== SCROLL REVEAL ===== */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-    }
+    .footer-copy { font-size: 0.82rem; color: var(--text-dim); }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
-      .features-grid,
-      .how-it-works-grid,
-      .platforms-grid { grid-template-columns: 1fr 1fr; }
-      .privacy-grid,
-      .mcp-grid { grid-template-columns: 1fr; }
+      .features-grid, .how-it-works-grid, .platforms-grid { grid-template-columns: 1fr 1fr; }
+      .privacy-grid, .mcp-grid { grid-template-columns: 1fr; }
       .app-mockup-body { grid-template-columns: 1fr; }
       .app-sidebar { display: none; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .how-it-works-grid::before { display: none; }
+      .step-connector { display: none; }
     }
 
     @media (max-width: 640px) {
-      .features-grid,
-      .how-it-works-grid,
-      .platforms-grid { grid-template-columns: 1fr; }
+      .features-grid, .how-it-works-grid, .platforms-grid { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: 1fr 1fr; }
       .nav-links { display: none; }
       .mobile-menu-btn { display: block; }
@@ -902,15 +1111,71 @@
       .footer-inner { flex-direction: column; gap: 24px; text-align: center; }
       .footer-links { flex-wrap: wrap; justify-content: center; }
     }
+
+    /* ===== PAGE LOADER ===== */
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    .loader-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+    }
+    .loader-bar {
+      width: 120px;
+      height: 3px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+    .loader-bar-fill {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--purple), var(--gold));
+      border-radius: 3px;
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+
+    /* ===== TEXT REVEAL CLIP ===== */
+    .reveal-clip {
+      clip-path: inset(0 100% 0 0);
+    }
   </style>
 </head>
 <body>
+
+  <!-- Page Loader -->
+  <div class="page-loader" id="pageLoader">
+    <img class="loader-logo" src="logo.png" alt="Loading...">
+    <div class="loader-bar">
+      <div class="loader-bar-fill" id="loaderFill"></div>
+    </div>
+  </div>
+
+  <!-- Scroll Progress -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Cursor Follower -->
+  <div class="cursor-follower" id="cursorFollower"></div>
 
   <!-- Background effects -->
   <div class="bg-grid"></div>
   <div class="bg-glow bg-glow-1"></div>
   <div class="bg-glow bg-glow-2"></div>
   <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Floating Geometric Shapes -->
+  <div class="geo-shapes" id="geoShapes"></div>
 
   <!-- Navigation -->
   <nav id="navbar">
@@ -926,7 +1191,7 @@
         <a href="#mcp">MCP</a>
         <a href="#platforms">Platforms</a>
       </div>
-      <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="nav-cta" target="_blank">
+      <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="nav-cta btn-magnetic" target="_blank">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download
       </a>
@@ -936,17 +1201,24 @@
     </div>
   </nav>
 
+  <!-- Smooth Scroll Wrapper -->
+  <div id="smooth-wrapper">
+  <div id="smooth-content">
+
   <!-- Hero Section -->
   <section class="hero">
     <div class="container">
+      <!-- Floating particles -->
+      <div class="particles" id="heroParticles"></div>
+
       <div class="hero-badge">
         <span class="dot"></span>
         Now available for macOS & Windows
       </div>
 
       <h1>
-        Your meetings,<br>
-        <span class="gradient-text">transcribed locally.</span>
+        <span class="line"><span class="line-inner">Your meetings,</span></span>
+        <span class="line"><span class="line-inner"><span class="gradient-text">transcribed locally.</span></span></span>
       </h1>
 
       <p class="hero-sub">
@@ -955,19 +1227,19 @@
       </p>
 
       <div class="hero-buttons">
-        <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-primary" target="_blank">
+        <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-primary btn-magnetic" target="_blank">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download for Free
         </a>
-        <a href="#features" class="btn-secondary">
+        <a href="#features" class="btn-secondary btn-magnetic">
           Learn More
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </a>
       </div>
 
       <!-- App Mockup -->
-      <div class="hero-visual">
-        <div class="app-mockup">
+      <div class="hero-visual" id="heroVisual">
+        <div class="app-mockup" id="appMockup">
           <div class="app-mockup-titlebar">
             <div class="dot"></div>
             <div class="dot"></div>
@@ -1023,9 +1295,7 @@
                   </div>
                 </div>
               </div>
-              <div class="waveform-bar" id="waveform">
-                <!-- Generated by JS -->
-              </div>
+              <div class="waveform-bar" id="waveform"></div>
             </div>
           </div>
         </div>
@@ -1036,26 +1306,28 @@
   <!-- Stats -->
   <div class="stats">
     <div class="container">
-      <div class="stats-grid reveal">
+      <div class="stats-grid" id="statsGrid">
         <div class="stat-item">
-          <div class="stat-number purple">100%</div>
+          <div class="stat-number purple" data-value="100" data-suffix="%">0%</div>
           <div class="stat-label">Local Processing</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number gold">4x</div>
+          <div class="stat-number gold" data-value="4" data-suffix="x">0x</div>
           <div class="stat-label">Faster Than Manual Notes</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number pink">100+</div>
+          <div class="stat-number pink" data-value="100" data-suffix="+">0+</div>
           <div class="stat-label">Languages Supported</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number orange">0</div>
+          <div class="stat-number orange" data-value="0" data-suffix="">0</div>
           <div class="stat-label">Cloud Dependencies</div>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="container"><div class="h-line"></div></div>
 
   <!-- Features -->
   <section id="features">
@@ -1065,46 +1337,46 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           Features
         </div>
-        <h2 class="section-title">Everything you need.<br>Nothing you don't.</h2>
+        <h2 class="section-title split-title">Everything you need. Nothing you don't.</h2>
         <p class="section-desc">Samsariq is designed to do one thing exceptionally well: capture your meetings and turn them into actionable intelligence, all without leaving your machine.</p>
       </div>
       <div class="features-grid">
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon purple">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
           </div>
           <h3>Real-Time Transcription</h3>
           <p>Powered by Whisper.cpp running locally with GPU acceleration. Get instant, accurate transcripts as your meeting unfolds.</p>
         </div>
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon gold">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
           </div>
           <h3>AI Summaries</h3>
           <p>Generate comprehensive meeting summaries, action items, and key decisions using local LLMs via Ollama or cloud APIs.</p>
         </div>
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon pink">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           </div>
           <h3>Privacy First</h3>
           <p>Your audio and transcripts never leave your device. No cloud processing, no third-party servers. Your conversations stay yours.</p>
         </div>
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon orange">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           </div>
           <h3>MCP Integration</h3>
           <p>Built-in Model Context Protocol support lets AI agents control recordings, query transcripts, and manage schedules programmatically.</p>
         </div>
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon purple">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
           <h3>Speaker Diarization</h3>
           <p>Automatically identifies and labels different speakers in your meetings, making it easy to follow who said what.</p>
         </div>
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon gold">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
@@ -1115,6 +1387,8 @@
     </div>
   </section>
 
+  <div class="container"><div class="h-line"></div></div>
+
   <!-- How It Works -->
   <section id="how-it-works">
     <div class="container">
@@ -1123,21 +1397,22 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           How It Works
         </div>
-        <h2 class="section-title">Three steps to clarity</h2>
+        <h2 class="section-title split-title">Three steps to clarity</h2>
         <p class="section-desc">No setup hassle. No accounts required. Just install, record, and get your meeting notes.</p>
       </div>
       <div class="how-it-works-grid">
-        <div class="step-card reveal">
+        <div class="step-connector"></div>
+        <div class="step-card">
           <div class="step-number">1</div>
           <h3>Start Recording</h3>
           <p>Hit record or use the global push-to-talk shortcut. Samsariq captures both your microphone and system audio simultaneously.</p>
         </div>
-        <div class="step-card reveal">
+        <div class="step-card">
           <div class="step-number">2</div>
           <h3>Watch It Transcribe</h3>
           <p>Whisper.cpp processes your audio locally with GPU acceleration. See real-time transcripts appear as the conversation flows.</p>
         </div>
-        <div class="step-card reveal">
+        <div class="step-card">
           <div class="step-number">3</div>
           <h3>Get AI Summaries</h3>
           <p>When you're done, get instant AI-generated summaries with action items, decisions, and key takeaways via local or cloud LLMs.</p>
@@ -1154,7 +1429,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           Works With
         </div>
-        <h2 class="section-title" style="font-size:1.8rem;">Works with every meeting platform</h2>
+        <h2 class="section-title split-title" style="font-size:1.8rem;">Works with every meeting platform</h2>
       </div>
     </div>
     <div class="integrations-row">
@@ -1179,6 +1454,8 @@
     </div>
   </div>
 
+  <div class="container"><div class="h-line"></div></div>
+
   <!-- Privacy Section -->
   <section id="privacy" class="privacy-section">
     <div class="container">
@@ -1188,16 +1465,16 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             Privacy & Security
           </div>
-          <h2 class="section-title">Your data stays<br>on your device.</h2>
+          <h2 class="section-title split-title">Your data stays on your device.</h2>
           <p class="section-desc" style="margin-bottom:32px;">We built Samsariq with a simple philosophy: your meetings are your business. Every piece of audio processing happens locally on your machine.</p>
-          <a href="#" class="btn-secondary" style="display:inline-flex;">
+          <a href="#" class="btn-secondary btn-magnetic" style="display:inline-flex;">
             Read our Privacy Policy
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
           </a>
         </div>
         <div class="privacy-visual">
           <div class="privacy-card-stack">
-            <div class="privacy-item reveal">
+            <div class="privacy-item">
               <div class="check">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
@@ -1206,7 +1483,7 @@
                 <p>All transcription runs locally via Whisper.cpp</p>
               </div>
             </div>
-            <div class="privacy-item reveal">
+            <div class="privacy-item">
               <div class="check">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
@@ -1215,7 +1492,7 @@
                 <p>Start using immediately with no sign-up</p>
               </div>
             </div>
-            <div class="privacy-item reveal">
+            <div class="privacy-item">
               <div class="check">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
@@ -1224,7 +1501,7 @@
                 <p>SQLite database stored on your machine only</p>
               </div>
             </div>
-            <div class="privacy-item reveal">
+            <div class="privacy-item">
               <div class="check">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
@@ -1239,6 +1516,8 @@
     </div>
   </section>
 
+  <div class="container"><div class="h-line"></div></div>
+
   <!-- MCP Section -->
   <section id="mcp">
     <div class="container">
@@ -1247,10 +1526,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           MCP Integration
         </div>
-        <h2 class="section-title">Built for AI agents</h2>
+        <h2 class="section-title split-title">Built for AI agents</h2>
         <p class="section-desc">Samsariq exposes a full Model Context Protocol interface. Let your AI agents control recordings, query transcripts, and schedule meetings.</p>
       </div>
-      <div class="mcp-showcase reveal">
+      <div class="mcp-showcase">
         <div class="mcp-grid">
           <div>
             <h3 style="font-size:1.3rem;margin-bottom:12px;">Agent-First Architecture</h3>
@@ -1278,21 +1557,21 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                 mcp_config.json
               </div>
-              <div class="code-body">
-<span class="comment">// Add to your MCP client config</span><br>
-{<br>
-&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"samsariq"</span>: {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">"command"</span>: <span class="string">"samsariq_mcp"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">"transport"</span>: <span class="string">"stdio"</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-&nbsp;&nbsp;}<br>
-}<br>
-<br>
-<span class="comment">// Then ask your AI agent:</span><br>
-<span class="comment">// "Start recording my standup"</span><br>
-<span class="comment">// "Summarize today's meetings"</span><br>
-<span class="comment">// "Schedule weekly sync at 10am"</span>
+              <div class="code-body" id="codeBlock">
+<div class="code-line"><span class="comment">// Add to your MCP client config</span></div>
+<div class="code-line">{</div>
+<div class="code-line">&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {</div>
+<div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"samsariq"</span>: {</div>
+<div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">"command"</span>: <span class="string">"samsariq_mcp"</span>,</div>
+<div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">"transport"</span>: <span class="string">"stdio"</span></div>
+<div class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+<div class="code-line">&nbsp;&nbsp;}</div>
+<div class="code-line">}</div>
+<div class="code-line"></div>
+<div class="code-line"><span class="comment">// Then ask your AI agent:</span></div>
+<div class="code-line"><span class="comment">// "Start recording my standup"</span></div>
+<div class="code-line"><span class="comment">// "Summarize today's meetings"</span></div>
+<div class="code-line"><span class="comment">// "Schedule weekly sync at 10am"</span></div>
               </div>
             </div>
           </div>
@@ -1300,6 +1579,8 @@
       </div>
     </div>
   </section>
+
+  <div class="container"><div class="h-line"></div></div>
 
   <!-- Platforms -->
   <section id="platforms">
@@ -1309,23 +1590,23 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           Platforms
         </div>
-        <h2 class="section-title">Available on your desktop</h2>
+        <h2 class="section-title split-title">Available on your desktop</h2>
         <p class="section-desc">Native apps built with Tauri for lightning-fast performance and minimal resource usage.</p>
       </div>
       <div class="platforms-grid">
-        <div class="platform-card reveal">
+        <div class="platform-card">
           <div class="platform-icon">&#63743;</div>
           <h3>macOS</h3>
           <p>Metal GPU acceleration with ScreenCaptureKit for system audio capture</p>
           <div class="platform-badge">Available Now</div>
         </div>
-        <div class="platform-card reveal">
+        <div class="platform-card">
           <div class="platform-icon">&#128187;</div>
           <h3>Windows</h3>
           <p>WASAPI audio capture with CUDA and Vulkan GPU support</p>
           <div class="platform-badge">Available Now</div>
         </div>
-        <div class="platform-card reveal">
+        <div class="platform-card">
           <div class="platform-icon">&#128039;</div>
           <h3>Linux</h3>
           <p>PulseAudio / ALSA support with CUDA and Vulkan acceleration</p>
@@ -1338,15 +1619,19 @@
   <!-- CTA -->
   <section class="cta-section">
     <div class="container">
-      <div class="cta-card reveal">
+      <div class="cta-card">
+        <!-- Animated glow rings -->
+        <div class="cta-glow-ring" id="ctaRing1"></div>
+        <div class="cta-glow-ring" id="ctaRing2"></div>
+        <div class="cta-glow-ring" id="ctaRing3"></div>
         <h2>Ready to take back your<br>meeting privacy?</h2>
         <p>Download Samsariq for free and experience the power of fully local AI meeting transcription.</p>
         <div class="cta-buttons">
-          <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-primary" target="_blank">
+          <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-primary btn-magnetic" target="_blank">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download Free
           </a>
-          <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-secondary" target="_blank">
+          <a href="https://github.com/MuhammadaliMS/samsariq-releases" class="btn-secondary btn-magnetic" target="_blank">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
             View on GitHub
           </a>
@@ -1375,18 +1660,209 @@
     </div>
   </footer>
 
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  </div><!-- end smooth-content -->
+  </div><!-- end smooth-wrapper -->
+
+  <!-- GSAP + Plugins -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/ScrollSmoother.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/TextPlugin.min.js"></script>
 
   <script>
-    // ===== NAV SCROLL =====
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    // ===== REGISTER PLUGINS =====
+    gsap.registerPlugin(ScrollTrigger, ScrollSmoother, TextPlugin);
+
+    // ===== SMOOTH SCROLLING =====
+    let smoother;
+    try {
+      smoother = ScrollSmoother.create({
+        wrapper: '#smooth-wrapper',
+        content: '#smooth-content',
+        smooth: 1.2,
+        effects: true,
+        smoothTouch: 0.1,
+      });
+    } catch(e) {
+      document.getElementById('smooth-wrapper').style.position = 'static';
+      document.getElementById('smooth-wrapper').style.overflow = 'visible';
+      document.getElementById('smooth-wrapper').style.height = 'auto';
+    }
+
+    // ===== SCROLL PROGRESS BAR =====
+    gsap.to('.scroll-progress', {
+      width: '100%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#smooth-content',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.3,
+      }
     });
 
-    // ===== GENERATE WAVEFORM BARS =====
+    // ===== FANCY PAGE LOADER =====
+    const loader = document.getElementById('pageLoader');
+    const loaderFill = document.getElementById('loaderFill');
+    const loaderTl = gsap.timeline({
+      onComplete: () => {
+        gsap.to(loader, {
+          clipPath: 'inset(0 0 100% 0)',
+          duration: 0.8,
+          ease: 'power3.inOut',
+          onComplete: () => {
+            loader.style.display = 'none';
+            startHeroAnimation();
+          }
+        });
+      }
+    });
+    loaderTl.to(loaderFill, { scaleX: 1, duration: 0.8, ease: 'power2.inOut' });
+    loaderTl.to('.loader-logo', {
+      scale: 1.15,
+      duration: 0.3,
+      yoyo: true,
+      repeat: 1,
+      ease: 'power2.inOut'
+    }, 0);
+
+    // ===== FLOATING GEOMETRIC SHAPES =====
+    const geoContainer = document.getElementById('geoShapes');
+    const shapeTypes = ['circle', 'diamond', ''];
+    const shapeColors = [
+      'rgba(107,93,211,0.12)', 'rgba(240,199,94,0.1)',
+      'rgba(240,180,208,0.1)', 'rgba(232,117,58,0.1)'
+    ];
+
+    for (let i = 0; i < 12; i++) {
+      const shape = document.createElement('div');
+      shape.className = 'geo-shape ' + shapeTypes[i % 3];
+      const size = 20 + Math.random() * 40;
+      shape.style.width = size + 'px';
+      shape.style.height = size + 'px';
+      shape.style.borderColor = shapeColors[i % 4];
+      shape.style.left = Math.random() * 100 + '%';
+      shape.style.top = Math.random() * 100 + '%';
+      geoContainer.appendChild(shape);
+
+      // Entrance
+      gsap.to(shape, {
+        opacity: 0.4 + Math.random() * 0.3,
+        duration: 1,
+        delay: 1.5 + Math.random() * 2,
+        ease: 'power2.out'
+      });
+
+      // Floating animation
+      gsap.to(shape, {
+        y: -60 - Math.random() * 100,
+        x: (Math.random() - 0.5) * 80,
+        rotation: Math.random() * 360,
+        duration: 8 + Math.random() * 8,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: Math.random() * 4,
+      });
+
+      // Parallax with scroll
+      gsap.to(shape, {
+        yPercent: -100 - Math.random() * 200,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#smooth-content',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1 + Math.random() * 2,
+        }
+      });
+    }
+
+    // ===== CURSOR FOLLOWER =====
+    const cursor = document.getElementById('cursorFollower');
+    let mouseX = 0, mouseY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      gsap.to(cursor, { x: mouseX, y: mouseY, duration: 0.8, ease: 'power2.out' });
+
+      document.querySelectorAll('.bg-glow').forEach((glow, i) => {
+        const speed = (i + 1) * 0.3;
+        gsap.to(glow, {
+          x: (mouseX / window.innerWidth - 0.5) * 30 * speed,
+          y: (mouseY / window.innerHeight - 0.5) * 30 * speed,
+          duration: 1.5,
+          ease: 'power2.out'
+        });
+      });
+    });
+
+    // Expand cursor on interactive elements
+    document.querySelectorAll('a, button, .feature-card, .platform-card, .privacy-item').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        gsap.to(cursor, { width: 450, height: 450, duration: 0.4, ease: 'power2.out' });
+      });
+      el.addEventListener('mouseleave', () => {
+        gsap.to(cursor, { width: 300, height: 300, duration: 0.4, ease: 'power2.out' });
+      });
+    });
+
+    if ('ontouchstart' in window) cursor.style.display = 'none';
+
+    // ===== MAGNETIC BUTTONS =====
+    document.querySelectorAll('.btn-magnetic').forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        gsap.to(btn, { x: x * 0.25, y: y * 0.25, duration: 0.3, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.3)' });
+      });
+    });
+
+    // ===== FEATURE CARD GLOW + 3D TILT =====
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        card.style.setProperty('--mouse-x', x + '%');
+        card.style.setProperty('--mouse-y', y + '%');
+
+        // 3D tilt
+        const tiltX = (y / 100 - 0.5) * -8;
+        const tiltY = (x / 100 - 0.5) * 8;
+        gsap.to(card, {
+          rotateX: tiltX,
+          rotateY: tiltY,
+          transformPerspective: 800,
+          duration: 0.4,
+          ease: 'power2.out'
+        });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, {
+          rotateX: 0,
+          rotateY: 0,
+          duration: 0.6,
+          ease: 'elastic.out(1, 0.5)'
+        });
+      });
+    });
+
+    // ===== NAV SCROLL =====
+    const navbar = document.getElementById('navbar');
+    ScrollTrigger.create({
+      start: 40,
+      onUpdate: (self) => {
+        navbar.classList.toggle('scrolled', self.scroll() > 40);
+      }
+    });
+
+    // ===== WAVEFORM BARS =====
     const waveformEl = document.getElementById('waveform');
     for (let i = 0; i < 80; i++) {
       const bar = document.createElement('div');
@@ -1397,79 +1873,562 @@
       waveformEl.appendChild(bar);
     }
 
-    // ===== GSAP ANIMATIONS =====
-    gsap.registerPlugin(ScrollTrigger);
+    // ===== HERO PARTICLES (enhanced) =====
+    const particlesEl = document.getElementById('heroParticles');
+    const colors = ['var(--purple-light)', 'var(--gold)', 'var(--pink)', 'var(--orange)'];
+    for (let i = 0; i < 40; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 2 + Math.random() * 5;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = Math.random() * 100 + '%';
+      // Add glow to larger particles
+      if (size > 4) {
+        p.style.boxShadow = `0 0 ${size * 3}px ${p.style.background}`;
+      }
+      particlesEl.appendChild(p);
 
-    // Hero entrance
-    const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    heroTl.to('.hero-badge', { opacity: 1, y: 0, duration: 0.8 }, 0.2)
-           .to('.hero h1', { opacity: 1, y: 0, duration: 0.9 }, 0.4)
-           .to('.hero-sub', { opacity: 1, y: 0, duration: 0.8 }, 0.6)
-           .to('.hero-buttons', { opacity: 1, y: 0, duration: 0.8 }, 0.8)
-           .to('.hero-visual', { opacity: 1, y: 0, duration: 1.0 }, 1.0);
+      gsap.to(p, {
+        opacity: 0.3 + Math.random() * 0.4,
+        y: -100 - Math.random() * 150,
+        x: (Math.random() - 0.5) * 80,
+        scale: 0.5 + Math.random(),
+        duration: 4 + Math.random() * 5,
+        repeat: -1,
+        delay: Math.random() * 5,
+        ease: 'none',
+        yoyo: true,
+      });
+    }
 
-    // Scroll reveal for all .reveal elements
-    gsap.utils.toArray('.reveal').forEach((el) => {
-      gsap.to(el, {
+    // ===== HERO ANIMATION SEQUENCE =====
+    function startHeroAnimation() {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      // Badge with scale bounce
+      tl.to('.hero-badge', {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: 'back.out(1.5)'
+      }, 0.1);
+
+      // Line reveal with stagger
+      tl.to('.hero h1 .line-inner', {
+        y: 0,
+        duration: 1.0,
+        stagger: 0.15,
+        ease: 'power4.out'
+      }, 0.3);
+
+      // Gradient text shimmer
+      tl.to('.gradient-text', {
+        backgroundPosition: '200% 0',
+        duration: 2,
+        ease: 'power2.inOut',
+        repeat: -1,
+        yoyo: true
+      }, 1.3);
+
+      // Sub text with blur-in effect
+      tl.fromTo('.hero-sub', {
+        opacity: 0,
+        y: 30,
+        filter: 'blur(10px)'
+      }, {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        duration: 0.9,
+        ease: 'power2.out'
+      }, 0.9);
+
+      // Buttons with spring
+      tl.to('.hero-buttons', {
         opacity: 1,
         y: 0,
         duration: 0.8,
-        ease: "power2.out",
+        ease: 'back.out(1.3)'
+      }, 1.1);
+
+      // App mockup with dramatic entrance
+      tl.to('.hero-visual', {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 1.4,
+        ease: 'power2.out'
+      }, 1.3);
+
+      // Sidebar items with spring stagger
+      tl.to('.app-sidebar-item', {
+        opacity: 1,
+        x: 0,
+        duration: 0.5,
+        stagger: 0.08,
+        ease: 'back.out(1.5)'
+      }, 1.9);
+
+      // Transcript lines with typewriter delay
+      tl.to('.transcript-line', {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.3,
+        ease: 'power2.out'
+      }, 2.1);
+    }
+
+    // ===== 3D TILT ON APP MOCKUP =====
+    const mockup = document.getElementById('appMockup');
+    const heroVisual = document.getElementById('heroVisual');
+
+    heroVisual.addEventListener('mousemove', (e) => {
+      const rect = heroVisual.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      gsap.to(mockup, {
+        rotateY: x * 10,
+        rotateX: -y * 6,
+        duration: 0.5,
+        ease: 'power2.out',
+        transformPerspective: 1000,
+      });
+    });
+
+    heroVisual.addEventListener('mouseleave', () => {
+      gsap.to(mockup, {
+        rotateY: 0,
+        rotateX: 0,
+        duration: 0.8,
+        ease: 'elastic.out(1, 0.5)',
+      });
+    });
+
+    // ===== COUNTER ANIMATION FOR STATS =====
+    ScrollTrigger.create({
+      trigger: '#statsGrid',
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        document.querySelectorAll('.stat-number').forEach((el, i) => {
+          const target = parseInt(el.dataset.value);
+          const suffix = el.dataset.suffix;
+          if (target === 0) {
+            el.textContent = '0' + suffix;
+            return;
+          }
+          gsap.fromTo(el, { innerText: 0 }, {
+            innerText: target,
+            duration: 2,
+            ease: 'power2.out',
+            delay: i * 0.15,
+            snap: { innerText: 1 },
+            onUpdate: function() {
+              el.textContent = Math.round(gsap.getProperty(el, 'innerText')) + suffix;
+            }
+          });
+        });
+
+        // Scale bounce with rotation hint
+        gsap.from('.stat-item', {
+          scale: 0.7,
+          opacity: 0,
+          rotateY: 15,
+          duration: 0.7,
+          stagger: 0.12,
+          ease: 'back.out(1.5)',
+          transformPerspective: 600,
+        });
+      }
+    });
+
+    // ===== HORIZONTAL LINE REVEALS =====
+    gsap.utils.toArray('.h-line').forEach(line => {
+      gsap.to(line, {
+        scaleX: 1,
+        duration: 1.2,
+        ease: 'power2.inOut',
         scrollTrigger: {
-          trigger: el,
-          start: "top 88%",
+          trigger: line,
+          start: 'top 90%',
           once: true,
         }
       });
     });
 
-    // Stats counter animation
-    gsap.utils.toArray('.stat-number').forEach((el) => {
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top 90%",
-        once: true,
-        onEnter: () => {
-          el.style.transition = "transform 0.5s ease";
-          el.style.transform = "scale(1.08)";
-          setTimeout(() => { el.style.transform = "scale(1)"; }, 300);
+    // ===== SECTION TITLE WORD REVEALS (enhanced with rotation) =====
+    document.querySelectorAll('.split-title').forEach(title => {
+      const text = title.textContent;
+      const words = text.split(' ');
+      title.innerHTML = words.map(w =>
+        `<span class="word"><span class="word-inner">${w}</span></span>`
+      ).join(' ');
+
+      gsap.to(title.querySelectorAll('.word-inner'), {
+        y: 0,
+        duration: 0.9,
+        stagger: 0.05,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: title,
+          start: 'top 85%',
+          once: true,
         }
       });
     });
 
-    // Feature cards stagger
+    // ===== SECTION DESC FADE (with blur) =====
+    gsap.utils.toArray('.section-desc').forEach(desc => {
+      gsap.fromTo(desc, {
+        opacity: 0,
+        y: 25,
+        filter: 'blur(8px)'
+      }, {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        duration: 0.9,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: desc,
+          start: 'top 88%',
+          once: true,
+        }
+      });
+    });
+
+    // ===== SECTION LABELS =====
+    gsap.utils.toArray('.section-label').forEach(label => {
+      gsap.from(label, {
+        opacity: 0,
+        x: -30,
+        duration: 0.7,
+        ease: 'back.out(1.5)',
+        scrollTrigger: {
+          trigger: label,
+          start: 'top 90%',
+          once: true,
+        }
+      });
+    });
+
+    // ===== FEATURE CARDS STAGGER (enhanced with 3D rotation) =====
     ScrollTrigger.create({
       trigger: '.features-grid',
-      start: "top 80%",
+      start: 'top 80%',
       once: true,
       onEnter: () => {
-        gsap.to('.feature-card', {
+        gsap.fromTo('.feature-card', {
+          opacity: 0,
+          y: 60,
+          rotateX: 15,
+          transformPerspective: 600,
+        }, {
           opacity: 1,
           y: 0,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: "power2.out"
+          rotateX: 0,
+          duration: 0.8,
+          stagger: {
+            amount: 0.6,
+            from: 'start',
+          },
+          ease: 'power3.out'
         });
       }
     });
 
-    // Parallax glow movement
-    window.addEventListener('mousemove', (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 30;
-      const y = (e.clientY / window.innerHeight - 0.5) * 30;
-      document.querySelectorAll('.bg-glow').forEach((glow, i) => {
-        const speed = (i + 1) * 0.5;
-        glow.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+    // ===== HOW IT WORKS (enhanced) =====
+    ScrollTrigger.create({
+      trigger: '.how-it-works-grid',
+      start: 'top 75%',
+      once: true,
+      onEnter: () => {
+        // Connector line draws in
+        gsap.to('.step-connector', {
+          scaleX: 1,
+          duration: 1.5,
+          ease: 'power2.inOut'
+        });
+
+        // Steps with scale bounce + rotation
+        gsap.fromTo('.step-card', {
+          opacity: 0,
+          y: 50,
+          scale: 0.85,
+        }, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.25,
+          ease: 'back.out(1.5)',
+          delay: 0.3
+        });
+
+        // Step numbers pulse in
+        gsap.fromTo('.step-number', {
+          scale: 0,
+          rotation: -180,
+        }, {
+          scale: 1,
+          rotation: 0,
+          duration: 0.8,
+          stagger: 0.25,
+          ease: 'back.out(2)',
+          delay: 0.5
+        });
+      }
+    });
+
+    // ===== PRIVACY ITEMS (alternating direction) =====
+    ScrollTrigger.create({
+      trigger: '.privacy-card-stack',
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.fromTo('.privacy-item', {
+          opacity: 0,
+          x: (i) => (i % 2 === 0 ? 60 : -60),
+          scale: 0.9,
+        }, {
+          opacity: 1,
+          x: 0,
+          scale: 1,
+          duration: 0.7,
+          stagger: 0.15,
+          ease: 'back.out(1.3)'
+        });
+      }
+    });
+
+    // ===== MCP SHOWCASE (enhanced with typewriter) =====
+    ScrollTrigger.create({
+      trigger: '.mcp-showcase',
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to('.mcp-showcase', {
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          ease: 'power2.out'
+        });
+
+        // Code lines type in one by one with cursor effect
+        const codeLines = document.querySelectorAll('.code-line');
+        const codeTl = gsap.timeline({ delay: 0.5 });
+
+        codeLines.forEach((line, i) => {
+          codeTl.to(line, {
+            opacity: 1,
+            x: 0,
+            duration: 0.15,
+            ease: 'power2.out',
+          }, i * 0.1);
+        });
+
+        // Add blinking cursor at the end
+        codeTl.call(() => {
+          const lastLine = codeLines[codeLines.length - 1];
+          const cursorEl = document.createElement('span');
+          cursorEl.className = 'typing-cursor';
+          lastLine.appendChild(cursorEl);
+        });
+
+        // Animate MCP feature checkmarks
+        const checks = document.querySelectorAll('.mcp-showcase div[style*="flex-direction:column"] > div');
+        gsap.fromTo(checks, {
+          opacity: 0,
+          x: -20,
+        }, {
+          opacity: 1,
+          x: 0,
+          duration: 0.5,
+          stagger: 0.12,
+          ease: 'power2.out',
+          delay: 0.8,
+        });
+      }
+    });
+
+    // ===== PLATFORM CARDS (flip entrance) =====
+    ScrollTrigger.create({
+      trigger: '.platforms-grid',
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.fromTo('.platform-card', {
+          opacity: 0,
+          y: 50,
+          scale: 0.85,
+          rotateY: 20,
+          transformPerspective: 800,
+        }, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotateY: 0,
+          duration: 0.9,
+          stagger: 0.2,
+          ease: 'back.out(1.3)'
+        });
+
+        // Platform icons bounce in separately
+        gsap.fromTo('.platform-icon', {
+          scale: 0,
+          rotation: -30,
+        }, {
+          scale: 1,
+          rotation: 0,
+          duration: 0.6,
+          stagger: 0.2,
+          ease: 'elastic.out(1, 0.4)',
+          delay: 0.5,
+        });
+      }
+    });
+
+    // ===== CTA CARD (enhanced with glow rings) =====
+    ScrollTrigger.create({
+      trigger: '.cta-card',
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to('.cta-card', {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1,
+          ease: 'power3.out'
+        });
+
+        // Animate glow rings
+        ['#ctaRing1', '#ctaRing2', '#ctaRing3'].forEach((ring, i) => {
+          gsap.to(ring, {
+            width: 400 + i * 200,
+            height: 400 + i * 200,
+            opacity: 0,
+            duration: 3,
+            repeat: -1,
+            delay: i * 1,
+            ease: 'power2.out',
+          });
+        });
+      }
+    });
+
+    // ===== PARALLAX EFFECT ON HERO MOCKUP =====
+    gsap.to('.hero-visual', {
+      yPercent: 20,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1.5,
+      }
+    });
+
+    // ===== BACKGROUND GLOW PARALLAX =====
+    gsap.to('.bg-glow-1', {
+      yPercent: -50,
+      xPercent: 20,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#smooth-content',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 2,
+      }
+    });
+    gsap.to('.bg-glow-2', {
+      yPercent: 30,
+      xPercent: -30,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#smooth-content',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 3,
+      }
+    });
+    gsap.to('.bg-glow-3', {
+      yPercent: -40,
+      xPercent: 40,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#smooth-content',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 2.5,
+      }
+    });
+
+    // ===== GRID PARALLAX =====
+    gsap.to('.bg-grid', {
+      backgroundPosition: '30px 200px',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#smooth-content',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1,
+      }
+    });
+
+    // ===== PLATFORM CARD 3D TILT =====
+    document.querySelectorAll('.platform-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width - 0.5) * 12;
+        const y = ((e.clientY - rect.top) / rect.height - 0.5) * -12;
+        gsap.to(card, {
+          rotateY: x,
+          rotateX: y,
+          transformPerspective: 600,
+          duration: 0.4,
+          ease: 'power2.out'
+        });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, {
+          rotateY: 0,
+          rotateX: 0,
+          duration: 0.6,
+          ease: 'elastic.out(1, 0.5)'
+        });
       });
     });
 
-    // Smooth scroll for anchor links
+    // ===== FOOTER REVEAL =====
+    gsap.from('footer .footer-inner > *', {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: 'footer',
+        start: 'top 90%',
+        once: true,
+      }
+    });
+
+    // ===== SMOOTH SCROLL FOR ANCHOR LINKS =====
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
+      anchor.addEventListener('click', function(e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (smoother) {
+            smoother.scrollTo(target, true, 'top top');
+          } else {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         }
       });
     });
