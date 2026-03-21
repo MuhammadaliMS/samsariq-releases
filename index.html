@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WDR2LBNV8L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-WDR2LBNV8L');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Samsariq — Don't Type. Just Samsariq.</title>
@@ -833,6 +841,19 @@
         document.body.style.overflow = '';
       }
     }
+
+    // ===== TRACK DOWNLOAD CLICKS (GA4) =====
+    document.querySelectorAll('#navDownloadBtn, #heroDownloadBtn, #platformDownloadBtn, #ctaDownloadBtn, #mobileDownloadBtn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (typeof gtag === 'function') {
+          gtag('event', 'download_click', {
+            event_category: 'engagement',
+            event_label: this.id,
+            value: 1
+          });
+        }
+      });
+    });
 
     // ===== FETCH LATEST RELEASE DMG =====
     (async function() {
