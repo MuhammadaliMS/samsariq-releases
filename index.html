@@ -64,6 +64,23 @@
     /* Fix Tailwind base reset making SVGs display:block inside inline-flex buttons */
     .inline-flex svg, .inline-block svg, a svg, button svg { display: inline-block; vertical-align: middle; }
 
+    /* Force download button text visibility */
+    #heroDownloadBtn, #heroDownloadBtn span,
+    #ctaDownloadBtn, #ctaDownloadBtn span,
+    #platformDownloadBtn, #platformDownloadBtn span,
+    #navDownloadBtn, #navDownloadBtn span,
+    #mobileDownloadBtn, #mobileDownloadBtn span { color: inherit; }
+    #heroDownloadBtn { background-color: #086640 !important; color: #fff !important; }
+    #heroDownloadBtn span { color: #fff !important; }
+    #ctaDownloadBtn { background-color: #fff !important; color: #0A0A0A !important; }
+    #ctaDownloadBtn span { color: #0A0A0A !important; }
+    #platformDownloadBtn { color: #fff !important; }
+    #platformDownloadBtn span { color: #fff !important; }
+    #navDownloadBtn { background-color: #fff !important; color: #0A0A0A !important; }
+    #navDownloadBtn span { color: #0A0A0A !important; }
+    #mobileDownloadBtn { background-color: #fff !important; color: #0A0A0A !important; }
+    #mobileDownloadBtn span { color: #0A0A0A !important; }
+
     /* Privacy card hover */
     .privacy-card { transition: transform 0.4s ease; }
     .privacy-card:hover { transform: rotate(0deg) !important; }
