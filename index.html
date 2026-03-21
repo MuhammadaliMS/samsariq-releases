@@ -518,7 +518,7 @@
       <h2 id="splitText" class="font-oswald text-5xl md:text-7xl lg:text-9xl font-bold text-white text-center px-6 leading-tight" style="mix-blend-mode: difference; z-index: 2; position: relative;">
         YOUR CONVERSATIONS<br>NEVER LEAVE YOUR DEVICE.
       </h2>
-      <!-- Star shape that scales up — starts behind text, crosses over early -->
+      <!-- Star shape that scales up — always behind text -->
       <div id="starContainer" class="absolute inset-0 flex items-center justify-center" style="z-index: 1; pointer-events: none;">
         <svg id="starShape" viewBox="0 0 100 100" width="80" height="80" style="overflow: visible;">
           <polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35" fill="#0A0A0A"/>
@@ -779,17 +779,10 @@
         const sectionHeight = splitSection.offsetHeight - window.innerHeight;
         const scrolled = -rect.top;
         const progress = Math.max(0, Math.min(1, scrolled / sectionHeight));
-        // Use exponential scaling for dramatic growth — covers entire screen
-        // Goes from 80px to ~20000px (250x) to fully blanket the viewport
+        // Exponential scaling — star grows dramatically behind text
         const size = 80 * Math.pow(250, progress);
         starShape.setAttribute('width', size);
         starShape.setAttribute('height', size);
-        // Star crosses over text early at 15% scroll when it's still small
-        if (progress > 0.15) {
-          starContainer.style.zIndex = '3';
-        } else {
-          starContainer.style.zIndex = '1';
-        }
         requestAnimationFrame(updateStar);
       }
       requestAnimationFrame(updateStar);
