@@ -868,11 +868,7 @@
           });
         }
       } catch (e) {
-        // Fallback to releases page if API fails
-        const fallback = 'https://github.com/MuhammadaliMS/samsariq-releases/releases/latest';
-        document.querySelectorAll('#navDownloadBtn, #heroDownloadBtn, #platformDownloadBtn, #ctaDownloadBtn, #mobileDownloadBtn').forEach(btn => {
-          if (btn) btn.href = fallback;
-        });
+        // Silently fail — buttons remain as-is
       }
     })();
 
